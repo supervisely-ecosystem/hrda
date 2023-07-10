@@ -63,8 +63,31 @@ def single_gpu_test(model,
     if efficient_test:
         mmcv.mkdir_or_exist('.efficient_test')
     for i, data in enumerate(data_loader):
+        img_meta = data['img_metas'][0].data[0][0]
+        ori_shape = img_meta['ori_shape']
+        if img_meta.get("pad_shape"):
+            # we will unpad and rescale later
+            data["rescale"] = False
+
+        ### DEBUG
+        # input_shape = data['img'][0].shape
+        # print("")
+        # print(f"{ori_shape=}, {input_shape=}")
+        ###
+
         with torch.no_grad():
             result = model(return_loss=False, **data)
+        
+        # debug
+        # print(f"{result[0].shape=}")
+
+        if img_meta.get("pad_shape"):
+            # unpad and resize manually
+            h,w,c = img_meta['img_shape']
+            dtype = result[0].dtype
+            result = result[0][:h, :w].astype(np.uint8)
+            result = mmcv.imresize(result, ori_shape[:2][::-1])
+            result = [result.astype(dtype)]
 
         if show or out_dir:
             img_tensor = data['img'][0]
