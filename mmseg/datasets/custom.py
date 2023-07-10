@@ -152,7 +152,8 @@ class CustomDataset(Dataset):
             for img in mmcv.scandir(img_dir, img_suffix, recursive=True):
                 img_info = dict(filename=img)
                 if ann_dir is not None:
-                    seg_map = img.replace(img_suffix, seg_map_suffix)
+                    # seg_map = img.replace(img_suffix, seg_map_suffix)
+                    seg_map = os.path.splitext(img)[0] + seg_map_suffix
                     img_info['ann'] = dict(seg_map=seg_map)
                 img_infos.append(img_info)
 
