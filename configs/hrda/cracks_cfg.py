@@ -63,9 +63,7 @@ data = dict(
         # are only masked out if the training crop is at the periphery of the
         # image.
         target=dict(crop_pseudo_margins=[10, 10, 10, 10]),
-    ),
-    # Use one separate thread/worker for data loading.
-    workers_per_gpu=1)
+    ))
 # Optimizer Hyperparameters
 optimizer_config = None
 optimizer = dict(

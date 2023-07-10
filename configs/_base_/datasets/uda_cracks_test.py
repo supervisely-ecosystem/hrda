@@ -37,24 +37,25 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=[1024,512],
+        img_scale=[768,768],
         # MultiScaleFlipAug is disabled by not providing img_ratios and
         # setting flip=False
         # img_ratios=[0.5, 0.75, 1.0, 1.25, 1.5, 1.75],
         flip=False,
         transforms=[
-            dict(type='Resize', keep_ratio=False),
+            dict(type='Resize', keep_ratio=True),
             # dict(type='RandomCrop', crop_size=crop_size),
             dict(type='RandomFlip'),
             dict(type='Normalize', **img_norm_cfg),
-            # dict(type='Pad', size=crop_size, pad_val=0, seg_pad_val=255),
+            # dict(type='Pad', size=[1024,1024], pad_val=0, seg_pad_val=255),
+            dict(type='Pad', size_divisor=16),
             dict(type='ImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img']),
         ])
 ]
 data = dict(
-    samples_per_gpu=3,
-    workers_per_gpu=3,
+    samples_per_gpu=1,
+    workers_per_gpu=0,
     train=dict(
         type='UDADataset',
         source=dict(
@@ -82,7 +83,8 @@ data = dict(
         pipeline=test_pipeline),
     test=dict(
         type='SuperviselyDataset',
-        data_root=data_root+"/validation_test",
+        # data_root=data_root+"/validation_test",
+        data_root=data_root+"/validation",
         img_dir='img',
         ann_dir='seg2',
         img_suffix='.jpg', seg_map_suffix='.jpg.png',
