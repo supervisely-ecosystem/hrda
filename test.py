@@ -34,9 +34,9 @@ def update_legacy_cfg(cfg):
     return cfg
 
 
-config = "configs/hrda/cracks_cfg_test.py"
+config = "configs/hrda/cracks_cfg_test_diverse_set.py"
 checkpoint = "work_dirs/local-basic/230705_1818_hrda_v2_e28bd/iter_25000.pth"
-show_dir = "preds_v2_test"
+show_dir = "preds_v2_test_diverse_set"
 opacity = 0.4
 inference_mode = "same"
 out_pickle = "outputs.pkl"
@@ -234,6 +234,8 @@ def main():
         if args.out:
             print(f'\nwriting results to {args.out}')
             mmcv.dump(outputs, args.out)
+            filenames = [x["filename"] for x in dataset.img_infos]
+            mmcv.dump(filenames, "output_filenames.pkl")
         kwargs = {} if args.eval_options is None else args.eval_options
         if args.format_only:
             dataset.format_results(outputs, **kwargs)
