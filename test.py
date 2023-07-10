@@ -34,17 +34,25 @@ def update_legacy_cfg(cfg):
     return cfg
 
 
+config = "configs/hrda/cracks_cfg_test.py"
+checkpoint = "work_dirs/local-basic/230705_1818_hrda_v2_e28bd/iter_25000.pth"
+show_dir = "preds_v2_test"
+opacity = 0.4
+inference_mode = "same"
+out_pickle = "outputs.pkl"
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description='mmseg test (and eval) a model')
-    parser.add_argument('config', help='test config file path')
-    parser.add_argument('checkpoint', help='checkpoint file')
+    parser.add_argument('--config', default=config, help='test config file path')
+    parser.add_argument('--checkpoint', default=checkpoint, help='checkpoint file')
     parser.add_argument(
         '--aug-test', action='store_true', help='Use Flip and Multi scale aug')
     parser.add_argument(
         '--inference-mode',
         choices=['same', 'whole', 'slide'],
-        default='same',
+        default=inference_mode,
         help='Inference mode.')
     parser.add_argument(
         '--test-set',
@@ -55,7 +63,7 @@ def parse_args():
         choices=['', 'LR', 'HR', 'ATT'],
         default='',
         help='Extract LR and HR predictions from HRDA architecture.')
-    parser.add_argument('--out', help='output result file in pickle format')
+    parser.add_argument('--out', default=out_pickle, help='output result file in pickle format')
     parser.add_argument(
         '--format-only',
         action='store_true',
@@ -66,11 +74,12 @@ def parse_args():
         '--eval',
         type=str,
         nargs='+',
+        default="mIoU",
         help='evaluation metrics, which depends on the dataset, e.g., "mIoU"'
         ' for generic datasets, and "cityscapes" for Cityscapes')
     parser.add_argument('--show', action='store_true', help='show results')
     parser.add_argument(
-        '--show-dir', help='directory where painted images will be saved')
+        '--show-dir', default=show_dir, help='directory where painted images will be saved')
     parser.add_argument(
         '--gpu-collect',
         action='store_true',
@@ -94,14 +103,13 @@ def parse_args():
     parser.add_argument(
         '--opacity',
         type=float,
-        default=0.5,
+        default=opacity,
         help='Opacity of painted segmentation map. In (0, 1] range.')
     parser.add_argument('--local_rank', type=int, default=0)
-    args = parser.parse_args()
+    args = parser.parse_args([])
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(args.local_rank)
     return args
-
 
 def main():
     args = parse_args()
@@ -180,7 +188,8 @@ def main():
         samples_per_gpu=1,
         workers_per_gpu=cfg.data.workers_per_gpu,
         dist=distributed,
-        shuffle=False)
+        shuffle=False,
+        persistent_workers=False)
 
     # build the model and load checkpoint
     cfg.model.train_cfg = None
