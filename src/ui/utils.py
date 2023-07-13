@@ -2,7 +2,7 @@ import torch
 from collections import OrderedDict
 from typing import Callable, Dict, Any, List, Optional
 from supervisely.app import DataJson
-from supervisely.app.widgets import Button, Widget, Container, Switch, Card, InputNumber
+from supervisely.app.widgets import Button, Widget, Container, Switch, Card, InputNumber, Empty
 
 
 select_params = {"icon": None, "plain": False, "text": "Select"}
@@ -222,3 +222,13 @@ def create_linked_getter(
         return widget2_val
 
     return getter
+
+
+def HContainer(widgets: list, tight=True, gap=10, fractions=None, overflow="scroll"):
+    if tight:
+        fractions = [1]*len(widgets) + [10-len(widgets)]
+        widgets.append(Empty())
+    return Container(widgets, "horizontal", gap=gap, fractions=fractions, overflow=overflow)
+
+def VContainer(widgets: list, gap=10, fractions=None, overflow="scroll"):
+    return Container(widgets, "vertical", gap=gap, fractions=fractions, overflow=overflow)
