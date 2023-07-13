@@ -57,36 +57,14 @@ class InputContainer:
         return self._container
 
 
-class MyInputContainer(InputContainer):
-    def __init__(self) -> None:
-        self.number = Field(InputNumber(45124, 1000), "BIG NUMBER", "Put the nuber")
-        self.number2 = InputNumber(4, 1)
-        self.select = Field(
-            SelectString(["linear", "cosine", "warmup"]),
-            "Scheduler",
-            "Select your scheduler"
-        )
-        c2 = Container([self.select, self.number2], "horizontal")
-        self.compile(Container([self.number, c2]))
-
-input_container = MyInputContainer()
-
-print(input_container.number)
-input_container.number = 55
-print(input_container.number)
-
-
-set_btn = Button("Set")
-get_btn = Button("Get")
-
-card = Card("Test", content=Container([input_container.get_content(), set_btn, get_btn]))
-
-@set_btn.click
-def on_set():
-    input_container.number += 5
-
-    
-@get_btn.click
-def on_get():
-    print(input_container.number)
-    print(input_container.select)
+# class MyInputContainer(InputContainer):
+#     def __init__(self) -> None:
+#         self.number = Field(InputNumber(45124, 1000), "BIG NUMBER", "Put the nuber")
+#         self.number2 = InputNumber(4, 1)
+#         self.select = Field(
+#             SelectString(["linear", "cosine", "warmup"]),
+#             "Scheduler",
+#             "Select your scheduler"
+#         )
+#         c2 = Container([self.select, self.number2], "horizontal")
+#         self.compile(Container([self.number, c2]))
