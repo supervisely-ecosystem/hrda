@@ -11,9 +11,11 @@ import src.ui.train_val_split as train_val_split
 # import src.ui.train as train
 import src.ui.augmentations as augmentations
 import src.ui.handlers
+import src.ui.input_container as input_container
 
 
 widgets = [
+    input_container.card,
     input_project.card,
     models.card,
     classes.card,
@@ -26,5 +28,3 @@ layout = Container(widgets=widgets)
 app = sly.Application(layout=layout)
 
 g.app = app
-
-# 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 🔟
