@@ -30,5 +30,3 @@ card = Card(
     ),
     content=Container([classes, filter_images_without_gt_field]),
 )
-
-card.lock()

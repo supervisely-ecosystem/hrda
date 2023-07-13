@@ -34,7 +34,6 @@ card = Card(
     content=container,
     lock_message="Select a model to unlock.",
 )
-card.lock()
 
 
 def get_selected_aug():
