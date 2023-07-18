@@ -60,7 +60,7 @@ container = Container(
         btn_container,
         epoch_progress,
         iter_progress,
-        # monitoring.compile_monitoring_container(True),
+        monitoring.compile_monitoring_container(hide=True),
     ]
 )
 
@@ -79,6 +79,10 @@ def start_train():
     stop_train_btn.enable()
     # epoch_progress.show()
     iter_progress.show()
+
+    if sly.is_development():
+        sly.fs.remove_dir("app_data")
+
     try:
         train.train()
     except StopIteration as exc:

@@ -5,9 +5,10 @@ import mmcv
 from tools import train as train_cli
 
 
-def train(cfg):
+def train():
     sly_dataset.download_datasets(g.PROJECT_ID)
     sly_dataset.prepare_datasets()
+    state.update()
     cfg = mmcv.Config.fromfile("configs/supervisely/base.py")
     update_config(cfg)
     cfg.dump("config.py")
@@ -18,7 +19,7 @@ def update_config(cfg):
     general_params = state.general_params
     checkpoint_params = state.checkpoint_params
     optimizer_params = state.optimizer_params
-    input_size = [general_params.shorter_input_size, general_params.longer_input_size]
+    input_size = (general_params.shorter_input_size, general_params.longer_input_size)
 
     # General
     cfg.work_dir = g.app_dir + "/work_dir"
@@ -49,8 +50,10 @@ def update_config(cfg):
     test_pipeline = cfg.data.test.pipeline
     source_pipeline[3].img_scale = input_size
     source_pipeline[4].crop_size = input_size
+    source_pipeline[7].size = input_size
     target_pipeline[1].img_scale = input_size
     target_pipeline[2].crop_size = input_size
+    target_pipeline[5].size = input_size
     val_pipeline[1].img_scale = input_size
     test_pipeline[1].img_scale = input_size
 
