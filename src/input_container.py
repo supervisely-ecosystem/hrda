@@ -23,9 +23,10 @@ def get_value(widget: Widget):
         return widget.is_switched()
     elif isinstance(widget, SelectString):
         return widget.get_value()
-    else:
-        assert hasattr(widget, "value"), f'The widget {widget} hasn\'t the "value" attr'
+    elif hasattr(widget, "value"):
         return widget.value
+    else:
+        raise NotImplementedError(f"The widget {widget} can't be used in InputContainer currently.")
 
 
 def set_value(widget: Widget, value):
@@ -34,9 +35,12 @@ def set_value(widget: Widget, value):
             widget.on()
         else:
             widget.off()
-    else:
-        assert hasattr(widget, "value"), f'The widget {widget} hasn\'t the "value" attr'
+    elif isinstance(widget, SelectString):
+        widget.set_value(value)
+    elif hasattr(widget, "value"):
         widget.value = value
+    else:
+        raise NotImplementedError(f"The widget {widget} can't be used in InputContainer currently.")
 
 
 class InputContainer:
