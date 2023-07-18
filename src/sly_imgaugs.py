@@ -1,11 +1,12 @@
 import supervisely as sly
 from mmseg.datasets.builder import PIPELINES
+from src.globals import state
 
 
 @PIPELINES.register_module()
 class SlyImgAugs(object):
-    def __init__(self, config_path):
-        self.config_path = config_path
+    def __init__(self):
+        self.config_path = state.augs_config_path
         if self.config_path is not None:
             config = sly.json.load_json_file(self.config_path)
             self.augs = sly.imgaug_utils.build_pipeline(

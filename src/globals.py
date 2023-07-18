@@ -1,6 +1,7 @@
 import os
 import supervisely as sly
 from dotenv import load_dotenv
+from src.state import State
 
 # from src.train_parameters import TrainParameters
 
@@ -18,6 +19,10 @@ app: sly.Application = None
 
 
 IMAGES_COUNT = api.project.get_info_by_id(PROJECT_ID).items_count
+PROJECT_DIR = app_dir + "/sly_project"
+PROJECT_SEG_DIR = app_dir + "/sly_project_seg"
+IMG_DIR = "img"
+ANN_DIR = "seg2"
 
 
 # for Augmentations widget:
@@ -25,3 +30,5 @@ data_dir = app_dir
 team = api.team.get_info_by_id(TEAM_ID)
 project_meta: sly.ProjectMeta = sly.ProjectMeta.from_json(api.project.get_meta(PROJECT_ID))
 # project_fs: sly.Project = None
+
+state = State()

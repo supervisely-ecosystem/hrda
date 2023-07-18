@@ -1,10 +1,7 @@
 from pathlib import Path
 import os
 from supervisely.app.widgets import AugmentationsWithTabs, Card, Container, Switch
-import supervisely as sly
-
 import src.globals as g
-from src import sly_utils
 
 
 def name_from_path(aug_path):
@@ -21,9 +18,7 @@ templates = [{"label": name_from_path(path), "value": path} for path in template
 
 
 swithcer = Switch(True)
-augments = AugmentationsWithTabs(
-    g, task_type=g.TASK_NAME, templates=templates
-)
+augments = AugmentationsWithTabs(g, task_type=g.TASK_NAME, templates=templates)
 
 
 container = Container([swithcer, augments])
@@ -36,7 +31,7 @@ card = Card(
 )
 
 
-def get_selected_aug():
+def get_selected_config_path():
     # path to aug pipline (.json file)
     if swithcer.is_switched():
         return augments._current_augs._template_path
