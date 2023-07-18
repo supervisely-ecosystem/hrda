@@ -9,7 +9,7 @@ from supervisely.app.widgets import (
     Switch,
     Tabs,
     Card,
-    SelectString
+    SelectString,
 )
 from src.ui.utils import HContainer
 from src.input_container import InputContainer
@@ -17,36 +17,103 @@ from src.input_container import InputContainer
 
 class GeneralParams(InputContainer):
     def __init__(self) -> None:
-        self.num_epochs = Field(InputNumber(15, min=1), "Number of epochs")
+        self.total_iters = Field(
+            InputNumber(25000, min=1),
+            "Training iterations",
+            "The number of total training iterations",
+        )
+        self.val_interval = Field(
+            InputNumber(1000, min=1), "Validation interval", "Evaluate the model every N iterations"
+        )
 
-        self.longer_input_size = Field(InputNumber(1000, 1), "Longer edge")
-        self.shorter_input_size = Field(InputNumber(600, 1), "Shorter edge")
+        self.longer_input_size = Field(InputNumber(640, 1), "Longer edge")
+        self.shorter_input_size = Field(InputNumber(640, 1), "Shorter edge")
 
         input_size_container = HContainer([self.longer_input_size, self.shorter_input_size])
         input_size_container = Field(
             input_size_container,
             title="Input size",
-            description="Images will be scaled approximately to the specified sizes while keeping the aspect ratio "
-            "(internally, the sizes are passed as 'scale' parameter of the 'Resize' transform in mmcv).",
+            description="Images will be cropped and pad to this size",
         )
-        
+
         self.batch_size_train = Field(InputNumber(2, 1), "Train batch size")
 
-        final_container = Container([self.num_epochs, input_size_container, self.batch_size_train])
+        final_container = Container(
+            [self.total_iters, self.val_interval, input_size_container, self.batch_size_train]
+        )
         self.compile(final_container)
 
+
+class CheckpointParams(InputContainer):
+    def __init__(self) -> None:
+        self.checkpoint_interval = Field(
+            InputNumber(2500, min=1), "Checkpoint interval", "Save checkpoint every N iterations"
+        )
+        self.max_keep_ckpts = Field(
+            InputNumber(3, min=-1),
+            "Max keep checkpoints",
+            'The maximum number of checkpoints to keep. Earlier checkpoints will be removed if the number of checkpoints will exceed this value. ("-1" will disable it)',
+        )
+        self.save_optimizer = Field(
+            Switch(),
+            "Save optimizer",
+            "Whether to save the optimizer state along with model weights.",
+        )
+
+        final_container = Container(
+            [self.checkpoint_interval, self.max_keep_ckpts, self.save_optimizer]
+        )
+        self.compile(final_container)
+
+
+class OptimizerParams(InputContainer):
+    def __init__(self) -> None:
+        self.optimizer_type = Field(
+            SelectString(["AdamW", "SGD"]), "Optimizer", "The type of the optimizer."
+        )
+        self.base_lr = Field(InputNumber(1e-4, min=0), "Initial LR", "The initial learning rate")
+        self.weight_decay = Field(
+            InputNumber(1e-4),
+            "Weight decay",
+            "Weight decay helps regularize the model to prevent overfitting.",
+        )
+
+        self.warmup_iters = Field(
+            InputNumber(600, min=0), "Warmup", "The number of warmup iterations."
+        )
+        self.scheduler_power = Field(
+            InputNumber(1.0, min=0),
+            "Scheduler's power",
+            "The power parameter of the Polynomial scheduler. This scheduler will gradually decrease the learning rate.",
+        )
+
+        final_container = Container(
+            [
+                self.optimizer_type,
+                self.base_lr,
+                self.weight_decay,
+                self.warmup_iters,
+                self.scheduler_power,
+            ]
+        )
+        self.compile(final_container)
+
+
 general_params = GeneralParams()
+checkpoint_params = CheckpointParams()
+optimizer_params = OptimizerParams()
 
 
 content = Tabs(
     labels=[
         "General",
-        # "Checkpoints",
-        # "Optimizer (Advanced)",
-        # "Learning rate scheduler (Advanced)",
+        "Checkpoints",
+        "Optimizer and LR",
     ],
     contents=[
         general_params.get_content(),
+        checkpoint_params.get_content(),
+        optimizer_params.get_content(),
     ],
 )
 
