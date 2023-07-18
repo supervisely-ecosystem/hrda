@@ -26,8 +26,8 @@ class GeneralParams(InputContainer):
             InputNumber(1000, min=1), "Validation interval", "Evaluate the model every N iterations"
         )
 
-        self.longer_input_size = Field(InputNumber(640, 1), "Longer edge")
-        self.shorter_input_size = Field(InputNumber(640, 1), "Shorter edge")
+        self.longer_input_size = Field(InputNumber(640, 1, step=16), "Longer edge")
+        self.shorter_input_size = Field(InputNumber(640, 1, step=16), "Shorter edge")
 
         input_size_container = HContainer([self.longer_input_size, self.shorter_input_size])
         input_size_container = Field(
