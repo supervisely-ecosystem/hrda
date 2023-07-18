@@ -21,6 +21,8 @@ def unwrap_field(widget: Widget):
 def get_value(widget: Widget):
     if isinstance(widget, Switch):
         return widget.is_switched()
+    elif isinstance(widget, SelectString):
+        return widget.get_value()
     else:
         assert hasattr(widget, "value"), f'The widget {widget} hasn\'t the "value" attr'
         return widget.value
