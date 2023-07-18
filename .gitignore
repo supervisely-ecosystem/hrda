@@ -125,3 +125,4 @@ configs/generated/
 *.pgf
 
 /preds*
+/app_data
