@@ -17,9 +17,6 @@ start_train_btn = Button("Train")
 stop_train_btn = Button("Stop", "danger")
 stop_train_btn.disable()
 
-epoch_progress = Progress("Epochs")
-epoch_progress.hide()
-
 iter_progress = Progress("Iterations", hide_on_finish=False)
 iter_progress.hide()
 
@@ -40,10 +37,10 @@ btn_container = Container(
 # Charts
 train_stage = StageMonitoring("train", "Train")
 train_stage.create_metric("Loss", ["loss"])
-train_stage.create_metric("Learning Rate", ["lr"], decimals_in_float=6)
+train_stage.create_metric("LR", ["lr"], decimals_in_float=6)
 val_stage = StageMonitoring("val", "Validation")
-val_stage.create_metric("Metrics", "mIoU")
-# val_stage.create_metric("Classwise mAP")
+val_stage.create_metric("mIoU", "mIoU")
+val_stage.create_metric("Per-class IoU")
 monitoring = Monitoring()
 monitoring.add_stage(train_stage, True)
 monitoring.add_stage(val_stage, True)
@@ -58,7 +55,6 @@ container = Container(
         success_msg,
         folder_thumb,
         btn_container,
-        epoch_progress,
         iter_progress,
         monitoring.compile_monitoring_container(hide=True),
     ]
@@ -72,13 +68,17 @@ card = Card(
 )
 
 
+def show_train_widgets():
+    monitoring.container.show()
+    stop_train_btn.enable()
+    iter_progress.show()
+
+
 @start_train_btn.click
 def start_train():
     g.state.stop_training = False
-    # monitoring.container.show()
-    stop_train_btn.enable()
-    # epoch_progress.show()
     iter_progress.show()
+    iter_progress(message="Preparing the model and data...", total=1)
 
     if sly.is_development():
         sly.fs.remove_dir("app_data")

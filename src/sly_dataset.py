@@ -66,6 +66,7 @@ class SuperviselyDataset(CustomDataset):
             test_mode=test_mode,
         )
 
+        self.last_eval_results = None
         self.project = sly.Project(g.PROJECT_SEG_DIR, sly.OpenMode.READ)
         self.CLASSES, self.PALETTE = get_classes_and_palette(self.project.meta)
         self.pseudo_margins = None
@@ -105,3 +106,8 @@ class SuperviselyDataset(CustomDataset):
 
         sly.logger.info(f"Loaded {len(img_infos)} images from {img_dir}")
         return img_infos
+
+    def evaluate(self, results, metric="mIoU", logger=None, efficient_test=False, **kwargs):
+        eval_results = super().evaluate(results, metric, logger, efficient_test, **kwargs)
+        self.last_eval_results = eval_results
+        return eval_results
