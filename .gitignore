@@ -126,3 +126,5 @@ configs/generated/
 
 /preds*
 /app_data
+/todo.txt
+/config.py

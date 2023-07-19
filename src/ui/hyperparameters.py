@@ -1,11 +1,7 @@
 from supervisely.app.widgets import (
     Container,
     InputNumber,
-    BindedInputNumber,
-    Select,
     Field,
-    Text,
-    Empty,
     Switch,
     Tabs,
     Card,
