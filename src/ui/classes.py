@@ -1,5 +1,6 @@
 from supervisely.app.widgets import ClassesTable, Card, Container, Button, Switch, Field
 from supervisely.app.content import StateJson
+import supervisely as sly
 
 from src.globals import PROJECT_ID
 
@@ -12,7 +13,8 @@ def select_all(cls_tbl: ClassesTable):
     StateJson().send_changes()
 
 
-classes = ClassesTable(project_id=PROJECT_ID)
+allowed_shapes = [sly.Bitmap, sly.Polygon]
+classes = ClassesTable(project_id=PROJECT_ID, allowed_types=allowed_shapes)
 select_all(classes)
 
 filter_images_without_gt_input = Switch(True)
