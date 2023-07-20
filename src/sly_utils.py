@@ -1,12 +1,38 @@
 import os
 from pathlib import Path
 import shutil
+import numpy as np
 from requests_toolbelt import MultipartEncoderMonitor
 from supervisely.app.widgets import Progress
 
 from tqdm import tqdm
 import src.globals as g
 import supervisely as sly
+
+
+def get_ann_from_np_mask(x: np.ndarray, classes, palette):
+    # the input mask contains zero labels for bg class
+    # classes and paletted shouldn't have the bg class
+    assert len(classes) == len(palette)
+
+    if x.ndim == 3:
+        if x.shape[2] == 3:
+            assert np.all(x[..., 0] == x[..., 1])
+            assert np.all(x[..., 0] == x[..., 2])
+            x = x[..., 0]
+        elif x.shape[2] == 1:
+            x = x.squeeze()
+
+    labels = []
+    for cls_idx in range(1, len(classes)):
+        mask = x == cls_idx
+        if mask.any():
+            b = sly.Bitmap(mask)
+            obj_cls = sly.ObjClass(classes[cls_idx - 1], sly.Bitmap, palette[cls_idx - 1])
+            l = sly.Label(b, obj_cls)
+            labels.append(l)
+    ann = sly.Annotation(x.shape[:2], labels)
+    return ann
 
 
 def download_custom_config(remote_weights_path: str):

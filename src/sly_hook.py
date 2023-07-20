@@ -1,11 +1,12 @@
 import numpy as np
 import supervisely as sly
-from mmcv.runner.hooks import HOOKS, Hook, EvalHook
+from mmcv.runner.hooks import HOOKS, Hook, EvalHook, CheckpointHook
 from mmcv.runner import Runner
 
 from src.ui import training as train_ui
 import src.globals as g
 from src.sly_dataset import SuperviselyDataset
+from src.sly_utils import get_ann_from_np_mask
 
 
 @HOOKS.register_module()
@@ -36,14 +37,17 @@ class SuperviselyHook(Hook):
             train_ui.monitoring.add_scalar("train", "Loss", "loss", i, loss)
             train_ui.monitoring.add_scalar("train", "LR", "lr", i, lr)
 
-        # Update validation charts
+        # Validation charts,
+        # Prediction previews
         eval_hook = self._get_eval_hook(runner)
         assert eval_hook is not None, "can't find the EvalHook"
-        if eval_hook._should_evaluate():
+        if eval_hook._should_evaluate(runner):
             dataset = eval_hook.dataloader.dataset
             assert isinstance(
                 dataset, SuperviselyDataset
             ), f"Evaluation dataset {dataset} is not a SuperviselyDataset instance."
+
+            # Update validation charts
             if dataset.last_eval_results is not None:
                 results: dict = dataset.last_eval_results
                 m_iou, per_class_iou = self.extract_metrics(results)
@@ -53,8 +57,26 @@ class SuperviselyHook(Hook):
             else:
                 sly.logger.warn("dataset.last_eval_results is None")
 
+            # Update prediction preview
+            # we will draw the first image in val dataset
+            if dataset.last_model_outputs is not None:
+                outputs = dataset.last_model_outputs
+                img_info = dataset.img_infos[0]
+                img_path = f"{dataset.img_dir}/{img_info['filename']}"
+                ann_path = f"{dataset.ann_dir}/{img_info['ann']['seg_map']}"
+                gt = sly.image.read(ann_path)
+                pred = outputs[0]
+                ann_pred = get_ann_from_np_mask(pred, dataset.CLASSES, dataset.PALETTE)
+                ann_gt = get_ann_from_np_mask(gt, dataset.CLASSES, dataset.PALETTE)
+                train_ui.update_prediction_preview(img_path, ann_pred, ann_gt)
+
+            else:
+                sly.logger.warn("dataset.last_model_outputs is None")
+
         # Stop training
         if g.state.stop_training:
+            checkpoint_hook: CheckpointHook = self._get_checkpoint_hook(runner)
+            checkpoint_hook._save_checkpoint(runner)
             raise StopIteration()
 
     def extract_metrics(self, results: dict):
@@ -73,3 +95,8 @@ class SuperviselyHook(Hook):
             for hook in runner.hooks:
                 if isinstance(hook, EvalHook):
                     return hook
+
+    def _get_checkpoint_hook(self, runner: Runner):
+        for hook in runner.hooks:
+            if isinstance(hook, CheckpointHook):
+                return hook

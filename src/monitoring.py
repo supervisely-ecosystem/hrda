@@ -102,3 +102,8 @@ class Monitoring(object):
         if hide:
             self.container.hide()
         return self.container
+
+    def clean_up(self):
+        for stage in self._stages.values():
+            for line_plot in stage["raw"]._widgets.values():
+                line_plot.clean_up()

@@ -9,20 +9,21 @@ if sly.is_development():
     load_dotenv(os.path.expanduser("~/supervisely.env"))
     load_dotenv("local.env")
 
-TASK_NAME = "segmentation"
-PROJECT_ID = sly.env.project_id()
-TEAM_ID = sly.env.team_id()
-
 api: sly.Api = sly.Api.from_env()
 app_dir = sly.app.get_data_dir()
 app: sly.Application = None
 
+TASK_NAME = "segmentation"
+PROJECT_ID = sly.env.project_id()
+TEAM_ID = sly.env.team_id()
 
 IMAGES_COUNT = api.project.get_info_by_id(PROJECT_ID).items_count
 PROJECT_DIR = app_dir + "/sly_project"
 PROJECT_SEG_DIR = app_dir + "/sly_project_seg"
 IMG_DIR = "img"
 ANN_DIR = "seg2"
+STATIC_DIR = app_dir + "/static"
+os.makedirs(STATIC_DIR, exist_ok=True)
 
 
 # for Augmentations widget:

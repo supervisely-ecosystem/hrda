@@ -14,7 +14,7 @@ import src.ui.augmentations as augmentations
 import src.ui.handlers
 
 # register modules (don't remove):
-from src import sly_dataset, sly_imgaugs
+from src import sly_dataset, sly_imgaugs, sly_hook
 
 
 widgets = [
@@ -27,6 +27,6 @@ widgets = [
     training.card,
 ]
 layout = Container(widgets=widgets)
-app = sly.Application(layout=layout)
+app = sly.Application(layout=layout, static_dir=g.STATIC_DIR)
 
 g.app = app

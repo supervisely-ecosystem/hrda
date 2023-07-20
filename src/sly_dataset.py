@@ -67,10 +67,11 @@ class SuperviselyDataset(CustomDataset):
         )
 
         self.last_eval_results = None
+        self.last_model_outputs = None
         self.project = sly.Project(g.PROJECT_SEG_DIR, sly.OpenMode.READ)
         self.CLASSES, self.PALETTE = get_classes_and_palette(self.project.meta)
         self.pseudo_margins = None
-        self.valid_mask_size = [512, 512]
+        self.valid_mask_size = [512, 512]  # TODO: magic numbers?
 
         if self.pseudo_margins is not None:
             assert pipeline[-1]["type"] == "Collect"
@@ -110,4 +111,5 @@ class SuperviselyDataset(CustomDataset):
     def evaluate(self, results, metric="mIoU", logger=None, efficient_test=False, **kwargs):
         eval_results = super().evaluate(results, metric, logger, efficient_test, **kwargs)
         self.last_eval_results = eval_results
+        self.last_model_outputs = results
         return eval_results
