@@ -24,7 +24,7 @@ def get_ann_from_np_mask(x: np.ndarray, classes, palette):
             x = x.squeeze()
 
     labels = []
-    for cls_idx in range(1, len(classes)):
+    for cls_idx in range(1, len(classes) + 1):
         mask = x == cls_idx
         if mask.any():
             b = sly.Bitmap(mask)
