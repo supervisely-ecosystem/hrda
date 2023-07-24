@@ -5,17 +5,9 @@ import supervisely as sly
 from src.globals import PROJECT_ID
 
 
-def select_all(cls_tbl: ClassesTable):
-    cls_tbl._global_checkbox = True
-    cls_tbl._checkboxes = [True] * len(cls_tbl._table_data)
-    StateJson()[cls_tbl.widget_id]["global_checkbox"] = cls_tbl._global_checkbox
-    StateJson()[cls_tbl.widget_id]["checkboxes"] = cls_tbl._checkboxes
-    StateJson().send_changes()
-
-
 allowed_shapes = [sly.Bitmap, sly.Polygon]
 classes = ClassesTable(project_id=PROJECT_ID, allowed_types=allowed_shapes)
-select_all(classes)
+classes.select_all()
 
 filter_images_without_gt_input = Switch(True)
 filter_images_without_gt_field = Field(
