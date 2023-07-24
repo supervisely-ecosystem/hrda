@@ -83,6 +83,12 @@ def show_train_widgets():
     prediction_preview.show()
 
 
+def reset_buttons():
+    stop_train_btn.disable()
+    start_train_btn.enable()
+    iter_progress.hide()
+
+
 @start_train_btn.click
 def start_train():
     g.state.stop_training = False
@@ -91,16 +97,16 @@ def start_train():
     iter_progress(message="Preparing the model and data...", total=1)
     monitoring.clean_up()
 
-    if sly.is_development():
-        sly.fs.remove_dir("app_data")
+    clear_working_dirs()
 
     try:
         train.train()
     except StopIteration as exc:
         sly.logger.info("The training was stopped.")
-
-    gc.collect()
-    torch.cuda.empty_cache()
+    finally:
+        reset_buttons()
+        gc.collect()
+        torch.cuda.empty_cache()
 
 
 @stop_train_btn.click
@@ -118,3 +124,14 @@ def update_prediction_preview(img_path: str, ann_pred: sly.Annotation, ann_gt: s
     prediction_preview.clean_up()
     prediction_preview.append(static_path, annotation=ann_gt, title=f"Ground Truth ({fname})")
     prediction_preview.append(static_path, annotation=ann_pred, title=f"Prediction ({fname})")
+
+    # TODO: debug
+    if sly.is_development():
+        img = sly.image.read(dst_path)
+        ann_pred.draw_pretty(img, thickness=0)
+        sly.image.write("debug_ann_pred.jpg", img)
+
+
+def clear_working_dirs():
+    sly.fs.remove_dir(g.PROJECT_SEG_DIR)
+    sly.fs.remove_dir(g.app_dir + "/work_dir")
