@@ -1,6 +1,3 @@
-IGNORE__BG__CLASS = True
-
-
 class State:
     def __init__(self) -> None:
         self.model = None
@@ -22,8 +19,9 @@ class State:
         from src.ui.hyperparameters import general_params, checkpoint_params, optimizer_params
 
         self.classes = classes.classes.get_selected_classes()
-        if IGNORE__BG__CLASS and "__bg__" in self.classes:
+        if "__bg__" in self.classes:
             self.classes.remove("__bg__")
+        assert len(self.classes) > 0, f"Please, select at least 1 class for training."
         self.model = models.get_selected_pretrained_model()
         self.augs_config_path = augmentations.get_selected_config_path()
         self.source_dataset = train_val_split.select_train_labeled.get_value()
