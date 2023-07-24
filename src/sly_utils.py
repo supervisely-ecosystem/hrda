@@ -10,7 +10,7 @@ import src.globals as g
 import supervisely as sly
 
 
-def get_ann_from_np_mask(x: np.ndarray, classes, palette, skip_bg=True):
+def mask2annotation(x: np.ndarray, classes, palette, skip_bg=True):
     assert len(classes) == len(palette)
 
     if x.ndim == 3:

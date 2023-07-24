@@ -6,7 +6,7 @@ from mmcv.runner import Runner
 from src.ui import training as train_ui
 import src.globals as g
 from src.sly_dataset import SuperviselyDataset
-from src.sly_utils import get_ann_from_np_mask
+from src.sly_utils import mask2annotation
 
 
 @HOOKS.register_module()
@@ -71,8 +71,8 @@ class SuperviselyHook(Hook):
                 ann_path = f"{dataset.ann_dir}/{img_info['ann']['seg_map']}"
                 gt = sly.image.read(ann_path)
                 pred = outputs[0]
-                ann_pred = get_ann_from_np_mask(pred, dataset.CLASSES, dataset.PALETTE)
-                ann_gt = get_ann_from_np_mask(gt, dataset.CLASSES, dataset.PALETTE)
+                ann_pred = mask2annotation(pred, dataset.CLASSES, dataset.PALETTE)
+                ann_gt = mask2annotation(gt, dataset.CLASSES, dataset.PALETTE)
                 train_ui.update_prediction_preview(img_path, ann_pred, ann_gt)
 
             else:
