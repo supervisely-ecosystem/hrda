@@ -10,9 +10,7 @@ import src.globals as g
 import supervisely as sly
 
 
-def get_ann_from_np_mask(x: np.ndarray, classes, palette):
-    # the input mask contains zero labels for bg class
-    # classes and paletted shouldn't have the bg class
+def get_ann_from_np_mask(x: np.ndarray, classes, palette, skip_bg=True):
     assert len(classes) == len(palette)
 
     if x.ndim == 3:
@@ -24,11 +22,11 @@ def get_ann_from_np_mask(x: np.ndarray, classes, palette):
             x = x.squeeze()
 
     labels = []
-    for cls_idx in range(1, len(classes) + 1):
+    for cls_idx in range(int(skip_bg), len(classes)):
         mask = x == cls_idx
         if mask.any():
             b = sly.Bitmap(mask)
-            obj_cls = sly.ObjClass(classes[cls_idx - 1], sly.Bitmap, palette[cls_idx - 1])
+            obj_cls = sly.ObjClass(classes[cls_idx], sly.Bitmap, palette[cls_idx])
             l = sly.Label(b, obj_cls)
             labels.append(l)
     ann = sly.Annotation(x.shape[:2], labels)

@@ -25,6 +25,9 @@ ANN_DIR = "seg2"
 STATIC_DIR = app_dir + "/static"
 os.makedirs(STATIC_DIR, exist_ok=True)
 
+# params
+MAX_CLASSES_FOR_PERCLASS_METRICS = 10
+
 
 # for Augmentations widget:
 data_dir = app_dir

@@ -24,6 +24,8 @@ def prepare_datasets():
 def get_classes_and_palette(project_meta: sly.ProjectMeta):
     class_names = [cls.name for cls in project_meta.obj_classes if cls.name != "__bg__"]
     palette = [cls.color for cls in project_meta.obj_classes if cls.name != "__bg__"]
+    class_names.insert(0, "__bg__")
+    palette.insert(0, [0, 0, 0])
     return class_names, palette
 
 
@@ -45,9 +47,12 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
 
 def _convert_mask_values(mask: np.ndarray, palette: list):
     result = np.zeros((mask.shape[0], mask.shape[1]), dtype=np.int32)
-    for color_idx, color in enumerate(palette, 1):
+    for label_idx, color in enumerate(palette):
+        if label_idx == 0:
+            # skip background
+            continue
         colormap = np.where(np.all(mask == color, axis=-1))
-        result[colormap] = color_idx
+        result[colormap] = label_idx
     return result
 
 

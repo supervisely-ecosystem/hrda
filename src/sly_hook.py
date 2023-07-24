@@ -52,8 +52,13 @@ class SuperviselyHook(Hook):
                 results: dict = dataset.last_eval_results
                 m_iou, per_class_iou = self.extract_metrics(results)
                 train_ui.monitoring.add_scalar("val", "mIoU", "mIoU", i, m_iou)
-                for class_name, value in per_class_iou.items():
-                    train_ui.monitoring.add_scalar("val", "Per-class IoU", class_name, i, value)
+
+                # Per-class IoU
+                if len(per_class_iou) - 1 <= g.MAX_CLASSES_FOR_PERCLASS_METRICS:
+                    for class_name, value in per_class_iou.items():
+                        if class_name == "__bg__":
+                            continue
+                        train_ui.monitoring.add_scalar("val", "Per-class IoU", class_name, i, value)
             else:
                 sly.logger.warn("dataset.last_eval_results is None")
 
