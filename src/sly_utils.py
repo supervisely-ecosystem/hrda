@@ -128,3 +128,8 @@ def save_augs_config(augs_config_path: str, work_dir: str):
 def save_open_app_lnk(work_dir: str):
     with open(work_dir + "/open_app.lnk", "w") as f:
         f.write(f"{g.api.server_address}/apps/sessions/{g.api.task_id}")
+
+
+def get_images_count(dataset_ids):
+    count_fn = lambda ds_id: len(g.api.image.get_list(ds_id))
+    return sum(map(count_fn, dataset_ids))

@@ -134,5 +134,7 @@ def update_prediction_preview(img_path: str, ann_pred: sly.Annotation, ann_gt: s
 
 
 def clear_working_dirs():
-    sly.fs.remove_dir(g.PROJECT_SEG_DIR)
-    sly.fs.remove_dir(g.app_dir + "/work_dir")
+    sly.fs.remove_dir(g.app_dir)
+    # sly.fs.remove_dir(g.PROJECT_DIR)
+    # sly.fs.remove_dir(g.PROJECT_SEG_DIR)
+    # sly.fs.remove_dir(g.app_dir + "/work_dir")

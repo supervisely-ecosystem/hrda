@@ -9,18 +9,18 @@ from src import globals as g
 
 def download_datasets(project_id, dataset_ids=None):
     project_dir = g.PROJECT_DIR
-    # TODO: only when dataset is selected in the modal window
-    if sly.fs.dir_exists(project_dir):
-        return project_dir
+    dataset_ids = list(set(dataset_ids))
     # TODO: hardcoded progress_cb is bad here
-    progress_cb = g.iter_progress(message="Downloading datasets...", total=g.IMAGES_COUNT).update
+    progress_cb = g.iter_progress(message="Downloading datasets...", total=g.state.n_images).update
     sly.Project.download(g.api, project_id, project_dir, dataset_ids, progress_cb=progress_cb)
     return project_dir
 
 
 def prepare_datasets(selected_classes):
     # TODO: hardcoded progress_cb is bad here
-    progress_cb = g.iter_progress(message="Converting annotations...", total=g.IMAGES_COUNT).update
+    progress_cb = g.iter_progress(
+        message="Converting annotations...", total=g.state.n_images
+    ).update
     sly.Project.to_segmentation_task(
         g.PROJECT_DIR, g.PROJECT_SEG_DIR, target_classes=selected_classes, progress_cb=progress_cb
     )

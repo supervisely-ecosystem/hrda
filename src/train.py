@@ -7,7 +7,7 @@ from tools import train as train_cli
 
 def train():
     state.update()
-    sly_dataset.download_datasets(g.PROJECT_ID)
+    sly_dataset.download_datasets(g.PROJECT_ID, state.selected_dataset_ids)
     sly_dataset.prepare_datasets(state.classes)
     # TODO: Can we don't import training_ui?
     g.iter_progress(message="Preparing the model...", total=1)
