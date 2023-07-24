@@ -6,12 +6,12 @@ from tools import train as train_cli
 
 
 def train():
-    sly_dataset.download_datasets(g.PROJECT_ID)
-    sly_dataset.prepare_datasets()
     state.update()
+    sly_dataset.download_datasets(g.PROJECT_ID)
+    sly_dataset.prepare_datasets(state.classes)
     cfg = mmcv.Config.fromfile("configs/supervisely/base.py")
     update_config(cfg)
-    cfg.dump("config.py")
+    cfg.dump("config.py")  # TODO: don't go this way
     train_cli.main(["config.py"])
 
 
