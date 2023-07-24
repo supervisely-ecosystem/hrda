@@ -22,6 +22,7 @@ stop_train_btn = Button("Stop", "danger")
 stop_train_btn.disable()
 
 iter_progress = Progress("Iterations", hide_on_finish=False)
+g.iter_progress = iter_progress
 iter_progress.hide()
 
 success_msg = DoneLabel("Training completed. Training artifacts were uploaded to Team Files.")

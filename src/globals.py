@@ -12,11 +12,13 @@ if sly.is_development():
 api: sly.Api = sly.Api.from_env()
 app_dir = sly.app.get_data_dir()
 app: sly.Application = None
+iter_progress: sly.app.widgets.Progress = None
 
 TASK_NAME = "segmentation"
 PROJECT_ID = sly.env.project_id()
 TEAM_ID = sly.env.team_id()
 
+# TODO: only when dataset is selected in the modal window
 IMAGES_COUNT = api.project.get_info_by_id(PROJECT_ID).items_count
 PROJECT_DIR = app_dir + "/sly_project"
 PROJECT_SEG_DIR = app_dir + "/sly_project_seg"
