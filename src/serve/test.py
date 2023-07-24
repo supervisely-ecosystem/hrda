@@ -4,7 +4,7 @@ from src.serve.hrda import HRDA
 import supervisely as sly
 from supervisely.nn import PredictionSegmentation
 import mmcv
-from src.sly_utils import get_ann_from_np_mask
+from src.sly_utils import mask2annotation
 
 load_dotenv(os.path.expanduser("~/supervisely.env"))
 
@@ -27,7 +27,7 @@ def to_annotation(pred: PredictionSegmentation):
     return ann
 
 
-ann = get_ann_from_np_mask(pred[0].mask, model.class_names, model.model.PALETTE)
+ann = mask2annotation(pred[0].mask, model.class_names, model.model.PALETTE)
 # ann = to_annotation(pred)
 
 img = sly.image.read(img_path)
