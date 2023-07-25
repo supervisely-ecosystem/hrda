@@ -93,7 +93,7 @@ def reset_buttons():
     iter_progress.hide()
 
 
-def show_done_label(file_info):
+def show_done_widgets(file_info):
     folder_thumb.set(info=file_info)
     folder_thumb.show()
     success_msg.show()
@@ -113,25 +113,28 @@ def start_train():
     except StopIteration as exc:
         sly.logger.info("The training was stopped.")
     finally:
-        reset_buttons()
+        # free cuda memory
         gc.collect()
         torch.cuda.empty_cache()
 
-        # upload checkpoints and logs
+        reset_buttons()
+
+        # prepare work_dir for uploading
         sly.fs.silent_remove(f"{g.WORK_DIR}/latest.pth")
         sly_utils.save_augs_config(g.state.augs_config_path, g.WORK_DIR)
         sly_utils.save_open_app_lnk(g.WORK_DIR)
+
+        # upload work_dir
         out_path = sly_utils.upload_artifacts(
             g.WORK_DIR, g.state.experiment_name, progress_widget=g.iter_progress
         )
+        config_file_info = g.api.file.get_info_by_path(g.TEAM_ID, f"/{out_path}/config.py")
 
-        # show done labels
-        file_info = g.api.file.get_info_by_path(g.TEAM_ID, out_path + "/config.py")
-        show_done_label(file_info)
+        show_done_widgets(config_file_info)
 
         if sly.is_production():
             # set link to artifacts in workspace tasks
-            g.api.task.set_output_directory(g.api.task_id, file_info.id, out_path)
+            g.api.task.set_output_directory(g.api.task_id, config_file_info.id, out_path)
             g.app.stop()
 
 
