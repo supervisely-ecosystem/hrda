@@ -1,11 +1,8 @@
-from typing import Callable, Dict, Any, List, Optional
 from supervisely.app.widgets import (
-    Button,
     Widget,
     Container,
     Switch,
-    Card,
-    InputNumber,
+    Input,
     Field,
     SelectString,
 )
@@ -21,7 +18,7 @@ def unwrap_field(widget: Widget):
 def get_value(widget: Widget):
     if isinstance(widget, Switch):
         return widget.is_switched()
-    elif isinstance(widget, SelectString):
+    elif isinstance(widget, (SelectString, Input)):
         return widget.get_value()
     elif hasattr(widget, "value"):
         return widget.value
@@ -35,7 +32,7 @@ def set_value(widget: Widget, value):
             widget.on()
         else:
             widget.off()
-    elif isinstance(widget, SelectString):
+    elif isinstance(widget, (SelectString, Input)):
         widget.set_value(value)
     elif hasattr(widget, "value"):
         widget.value = value
@@ -43,7 +40,7 @@ def set_value(widget: Widget, value):
         raise NotImplementedError(f"The widget {widget} can't be used in InputContainer currently.")
 
 
-class InputContainer:
+class InputForm:
     def __init__(self) -> None:
         self._container = None
 

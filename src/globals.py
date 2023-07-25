@@ -19,11 +19,17 @@ PROJECT_ID = sly.env.project_id()
 TEAM_ID = sly.env.team_id()
 
 # TODO: only when dataset is selected in the modal window
-IMAGES_COUNT = api.project.get_info_by_id(PROJECT_ID).items_count
+_project_info = api.project.get_info_by_id(PROJECT_ID)
+IMAGES_COUNT = _project_info.items_count
+PROJECT_NAME = _project_info.name
+
+LOG_INTERVAL = 1 if sly.is_development() else 50
 PROJECT_DIR = app_dir + "/sly_project"
 PROJECT_SEG_DIR = app_dir + "/sly_project_seg"
 IMG_DIR = "img"
 ANN_DIR = "seg2"
+WORK_DIR = app_dir + "/work_dir"
+TEAMFILES_UPLOAD_DIR = "HRDA"
 STATIC_DIR = app_dir + "/static"
 os.makedirs(STATIC_DIR, exist_ok=True)
 

@@ -70,7 +70,6 @@ class HRDA(SemanticSegmentation):
     def predict(
         self, image_path: str, settings: Dict[str, Any] = None
     ) -> List[PredictionSegmentation]:
-        inference_segmentor
         # prepare data
         data = dict(img=image_path)
         data = self.test_pipeline(data)

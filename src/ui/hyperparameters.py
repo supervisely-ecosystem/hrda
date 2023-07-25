@@ -6,13 +6,20 @@ from supervisely.app.widgets import (
     Tabs,
     Card,
     SelectString,
+    Input,
 )
 from src.ui.utils import HContainer
-from src.input_container import InputContainer
+from src.input_container import InputForm
+from src import sly_utils
 
 
-class GeneralParams(InputContainer):
+class GeneralParams(InputForm):
     def __init__(self) -> None:
+        self.experiment_name = Field(
+            Input(f"hrda_{sly_utils.get_project_name()}"),
+            "Experiment name",
+            "This name will be used as a dir name in Team Files where model checkpoints will be uploaded after the training.",
+        )
         self.total_iters = Field(
             InputNumber(25000, min=1),
             "Training iterations",
@@ -35,12 +42,18 @@ class GeneralParams(InputContainer):
         self.batch_size_train = Field(InputNumber(2, 1), "Train batch size")
 
         final_container = Container(
-            [self.total_iters, self.val_interval, input_size_container, self.batch_size_train]
+            [
+                self.experiment_name,
+                self.total_iters,
+                self.val_interval,
+                input_size_container,
+                self.batch_size_train,
+            ]
         )
         self.compile(final_container)
 
 
-class CheckpointParams(InputContainer):
+class CheckpointParams(InputForm):
     def __init__(self) -> None:
         self.checkpoint_interval = Field(
             InputNumber(2500, min=1), "Checkpoint interval", "Save checkpoint every N iterations"
@@ -62,7 +75,7 @@ class CheckpointParams(InputContainer):
         self.compile(final_container)
 
 
-class OptimizerParams(InputContainer):
+class OptimizerParams(InputForm):
     def __init__(self) -> None:
         self.optimizer_type = Field(
             SelectString(["AdamW", "SGD"]), "Optimizer", "The type of the optimizer."

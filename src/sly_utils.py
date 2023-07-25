@@ -50,11 +50,16 @@ def download_custom_config(remote_weights_path: str):
     return config_path
 
 
-def download_custom_model_weights(remote_weights_path: str):
-    # download .pth
+def get_local_weights_path(remote_weights_path: str):
     file_name = os.path.basename(remote_weights_path)
     weights_path = g.app_dir + f"/{file_name}"
-    g.api.file.download(g.TEAM_ID, remote_weights_path, weights_path)
+    return weights_path
+
+
+def download_custom_model_weights(remote_weights_path: str, progress_cb=None):
+    # download .pth
+    weights_path = get_local_weights_path(remote_weights_path)
+    g.api.file.download(g.TEAM_ID, remote_weights_path, weights_path, progress_cb=progress_cb)
     return weights_path
 
 
@@ -65,18 +70,8 @@ def download_custom_model(remote_weights_path: str):
 
 
 def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget: Progress = None):
-    task_id = g.api.task_id or ""
-    paths = [path for path in os.listdir(work_dir) if path.endswith(".py")]
-    assert len(paths) > 0, "Can't find config file saved during training."
-    assert len(paths) == 1, "Found more then 1 .py file"
-    cfg_path = f"{work_dir}/{paths[0]}"
-    shutil.move(cfg_path, f"{work_dir}/config.py")
-
-    # rm symlink
-    sly.fs.silent_remove(f"{work_dir}/last_checkpoint")
-
     if not experiment_name:
-        experiment_name = f"{g.config_name.split('.py')[0]}"
+        experiment_name = f"hrda"
     sly.logger.debug("Uploading checkpoints to Team Files...")
 
     if progress_widget:
@@ -95,10 +90,12 @@ def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget
     else:
         cb = None
 
+    task_id = g.api.task_id or ""
+    team_files_dir = os.path.join(g.TEAMFILES_UPLOAD_DIR, f"{task_id}_{experiment_name}")
     out_path = g.api.file.upload_directory(
         g.TEAM_ID,
         work_dir,
-        f"/mmdetection-3/{task_id}_{experiment_name}",
+        team_files_dir,
         progress_size_cb=cb,
     )
     return out_path
@@ -117,12 +114,13 @@ def download_project(progress_widget):
     return project_dir
 
 
-def get_images_count():
-    return g.IMAGES_COUNT
+def get_project_name():
+    return g.PROJECT_NAME
 
 
 def save_augs_config(augs_config_path: str, work_dir: str):
-    sly.fs.copy_file(augs_config_path, work_dir + "/augmentations.json")
+    if augs_config_path:
+        sly.fs.copy_file(augs_config_path, work_dir + "/augmentations.json")
 
 
 def save_open_app_lnk(work_dir: str):

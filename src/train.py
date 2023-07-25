@@ -1,12 +1,15 @@
 from src import globals as g
 from src.globals import state
-from src import utils, sly_dataset
+from src import utils, sly_dataset, sly_utils
 import mmcv
 from tools import train as train_cli
 
 
 def train():
     state.update()
+    if state.is_custom_model_selected:
+        progress_cb = g.iter_progress(message="Downloading model weights...").update
+        sly_utils.download_custom_model_weights(state.remote_weights_path, progress_cb)
     sly_dataset.download_datasets(g.PROJECT_ID, state.selected_dataset_ids)
     sly_dataset.prepare_datasets(state.classes)
     # TODO: Can we don't import training_ui?
@@ -24,8 +27,8 @@ def update_config(cfg):
     input_size = (general_params.shorter_input_size, general_params.longer_input_size)
 
     # General
-    cfg.work_dir = g.app_dir + "/work_dir"
-    cfg.log_config.interval = 1
+    cfg.work_dir = g.WORK_DIR
+    cfg.log_config.interval = g.LOG_INTERVAL
 
     # Runtime
     cfg.runner.max_iters = general_params.total_iters
@@ -71,6 +74,8 @@ def update_config(cfg):
     model.hr_crop_size = hr_crop_size
     model.test_cfg.crop_size = input_size
     model.test_cfg.stride = stride
+
+    cfg.load_from = state.local_weights_path
 
     # Optimizer
     opt = cfg.optimizer

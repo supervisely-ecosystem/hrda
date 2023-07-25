@@ -16,6 +16,7 @@ import torch
 import src.globals as g
 from src import train
 from src.monitoring import Monitoring, StageMonitoring
+from src import sly_utils
 
 start_train_btn = Button("Train")
 stop_train_btn = Button("Stop", "danger")
@@ -108,6 +109,14 @@ def start_train():
         reset_buttons()
         gc.collect()
         torch.cuda.empty_cache()
+
+        # upload artifacts
+        sly.fs.silent_remove(f"{g.WORK_DIR}/latest.pth")
+        sly_utils.save_augs_config(g.state.augs_config_path, g.WORK_DIR)
+        sly_utils.save_open_app_lnk(g.WORK_DIR)
+        sly_utils.upload_artifacts(
+            g.WORK_DIR, g.state.general_params.experiment_name, progress_widget=g.iter_progress
+        )
 
 
 @stop_train_btn.click

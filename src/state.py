@@ -13,6 +13,10 @@ class State:
         self.selected_dataset_ids = None
         self.batch_size = 2
 
+        self.is_custom_model_selected = None
+        self.remote_weights_path = None
+        self.local_weights_path = None
+
         self.general_params = None
         self.checkpoint_params = None
         self.optimizer_params = None
@@ -32,6 +36,14 @@ class State:
         assert len(self.classes) > 0, f"Please, select at least 1 class for training."
 
         self.model = models.get_selected_pretrained_model()
+        self.is_custom_model_selected = not models.is_pretrained_model_selected()
+        if self.is_custom_model_selected:
+            self.remote_weights_path = models.get_selected_custom_path()
+            self.local_weights_path = sly_utils.get_local_weights_path(self.remote_weights_path)
+        else:
+            self.remote_weights_path = None
+            self.local_weights_path = None
+
         self.augs_config_path = augmentations.get_selected_config_path()
 
         self.source_dataset = train_val_split.select_train_labeled.get_value()
