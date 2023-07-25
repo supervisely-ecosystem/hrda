@@ -25,10 +25,12 @@ def get_architecture_list():
     architectures = ["SegFormer"]
     return architectures
 
+
 def get_model_list(architecture_name):
     names = ["SegFormer MiT-b5"]
     models = [ModelItem(name, architecture_name) for name in names]
     return models
+
 
 def _get_table_data(models: list):
     columns = ["Model variant"]
@@ -96,12 +98,10 @@ radio_tabs = RadioTabs(
     ],
 )
 
-select_btn = Button(text="Select model")
-
 card = Card(
     title=f"2️⃣ Model select",
     description="Choose model architecture and how its weights should be initialized",
-    content=Container([radio_tabs, select_btn]),
+    content=Container([radio_tabs]),
     lock_message="Select a task to unlock.",
 )
 
@@ -127,5 +127,6 @@ def update_selected_model(selected_row):
 
 def reset_widgets():
     update_architecture()
+
 
 reset_widgets()

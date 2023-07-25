@@ -10,6 +10,7 @@ from supervisely.app.widgets import (
     FolderThumbnail,
     DoneLabel,
     GridGallery,
+    Field,
 )
 import torch
 
@@ -17,12 +18,15 @@ import src.globals as g
 from src import train
 from src.monitoring import Monitoring, StageMonitoring
 from src import sly_utils
+from src.ui.utils import HContainer
 
 start_train_btn = Button("Train")
 stop_train_btn = Button("Stop", "danger")
 stop_train_btn.disable()
+finish_btn = Button("Save & finish", "danger")
+finish_btn.hide()
 
-iter_progress = Progress("Iterations", hide_on_finish=False)
+iter_progress = Progress("", hide_on_finish=False)
 g.iter_progress = iter_progress
 iter_progress.hide()
 
@@ -34,11 +38,9 @@ success_msg.hide()
 folder_thumb = FolderThumbnail()
 folder_thumb.hide()
 
-btn_container = Container(
-    [start_train_btn, stop_train_btn, Empty()],
-    "horizontal",
+btn_container = HContainer(
+    [start_train_btn, stop_train_btn, finish_btn],
     overflow="wrap",
-    fractions=[1, 1, 10],
     gap=1,
 )
 
@@ -60,6 +62,12 @@ monitoring.add_stage(val_stage)
 # Prediction preview
 prediction_preview = GridGallery(2, enable_zoom=True, sync_views=True)
 prediction_preview.hide()
+prediction_preview_f = Field(
+    prediction_preview,
+    "Prediction visualizations",
+    "After each validation we will draw prediction for the first image in val dataset.",
+)
+prediction_preview_f.hide()
 
 container = Container(
     [
@@ -68,7 +76,7 @@ container = Container(
         btn_container,
         iter_progress,
         monitoring.compile_monitoring_container(hide=True),
-        prediction_preview,
+        prediction_preview_f,
     ]
 )
 
@@ -84,7 +92,7 @@ def show_train_widgets():
     monitoring.container.show()
     stop_train_btn.enable()
     iter_progress.show()
-    prediction_preview.show()
+    prediction_preview_f.show()
 
 
 def reset_buttons():
@@ -97,51 +105,27 @@ def show_done_widgets(file_info):
     folder_thumb.set(info=file_info)
     folder_thumb.show()
     success_msg.show()
+    iter_progress.hide()
 
 
-@start_train_btn.click
-def start_train():
-    g.state.stop_training = False
-    stop_train_btn.enable()
-    iter_progress.show()
-    monitoring.clean_up()
+def upload_and_finish():
+    # prepare work_dir for uploading
+    sly.fs.silent_remove(f"{g.WORK_DIR}/latest.pth")
+    sly_utils.save_augs_config(g.state.augs_config_path, g.WORK_DIR)
+    sly_utils.save_open_app_lnk(g.WORK_DIR)
 
-    clear_working_dirs()
+    # upload work_dir
+    out_path = sly_utils.upload_artifacts(
+        g.WORK_DIR, g.state.experiment_name, progress_widget=g.iter_progress
+    )
+    config_file_info = g.api.file.get_info_by_path(g.TEAM_ID, f"/{out_path}/config.py")
 
-    try:
-        train.train()
-    except StopIteration as exc:
-        sly.logger.info("The training was stopped.")
-    finally:
-        # free cuda memory
-        gc.collect()
-        torch.cuda.empty_cache()
+    show_done_widgets(config_file_info)
 
-        reset_buttons()
-
-        # prepare work_dir for uploading
-        sly.fs.silent_remove(f"{g.WORK_DIR}/latest.pth")
-        sly_utils.save_augs_config(g.state.augs_config_path, g.WORK_DIR)
-        sly_utils.save_open_app_lnk(g.WORK_DIR)
-
-        # upload work_dir
-        out_path = sly_utils.upload_artifacts(
-            g.WORK_DIR, g.state.experiment_name, progress_widget=g.iter_progress
-        )
-        config_file_info = g.api.file.get_info_by_path(g.TEAM_ID, f"/{out_path}/config.py")
-
-        show_done_widgets(config_file_info)
-
-        if sly.is_production():
-            # set link to artifacts in workspace tasks
-            g.api.task.set_output_directory(g.api.task_id, config_file_info.id, out_path)
-            g.app.stop()
-
-
-@stop_train_btn.click
-def stop_train():
-    g.state.stop_training = True
-    stop_train_btn.disable()
+    if sly.is_production():
+        # set link to artifacts in workspace tasks
+        g.api.task.set_output_directory(g.api.task_id, config_file_info.id, out_path)
+        g.app.stop()
 
 
 def update_prediction_preview(img_path: str, ann_pred: sly.Annotation, ann_gt: sly.Annotation):
@@ -160,6 +144,50 @@ def update_prediction_preview(img_path: str, ann_pred: sly.Annotation, ann_gt: s
         ann_pred.draw_pretty(img, thickness=0)
         sly.image.write("debug_ann_pred.jpg", img)
 
+    if prediction_preview.is_hidden():
+        prediction_preview.show()
+
 
 def clear_working_dirs():
     sly.fs.remove_dir(g.app_dir)
+
+
+@start_train_btn.click
+def start_train():
+    g.state.stop_training = False
+    stop_train_btn.enable()
+    iter_progress.show()
+    monitoring.clean_up()
+    prediction_preview.clean_up()
+    finish_btn.hide()
+
+    clear_working_dirs()
+
+    no_errors = True
+    try:
+        train.train()
+    except StopIteration as exc:
+        sly.logger.info("The training was stopped.")
+    except Exception as exc:
+        no_errors = False
+    finally:
+        reset_buttons()
+        # free cuda memory
+        gc.collect()
+        torch.cuda.empty_cache()
+
+    if no_errors:
+        upload_and_finish()
+    else:
+        finish_btn.show()
+
+
+@stop_train_btn.click
+def stop_train():
+    g.state.stop_training = True
+    stop_train_btn.disable()
+
+
+@finish_btn.click
+def on_finish():
+    upload_and_finish()
