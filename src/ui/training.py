@@ -26,7 +26,9 @@ iter_progress = Progress("Iterations", hide_on_finish=False)
 g.iter_progress = iter_progress
 iter_progress.hide()
 
-success_msg = DoneLabel("Training completed. Training artifacts were uploaded to Team Files.")
+success_msg = DoneLabel(
+    "The training completed. All checkpoints and logs were uploaded to Team Files."
+)
 success_msg.hide()
 
 folder_thumb = FolderThumbnail()
@@ -91,12 +93,17 @@ def reset_buttons():
     iter_progress.hide()
 
 
+def show_done_label(file_info):
+    folder_thumb.set(info=file_info)
+    folder_thumb.show()
+    success_msg.show()
+
+
 @start_train_btn.click
 def start_train():
     g.state.stop_training = False
     stop_train_btn.enable()
     iter_progress.show()
-    iter_progress(message="Preparing the model and data...", total=1)
     monitoring.clean_up()
 
     clear_working_dirs()
@@ -110,13 +117,22 @@ def start_train():
         gc.collect()
         torch.cuda.empty_cache()
 
-        # upload artifacts
+        # upload checkpoints and logs
         sly.fs.silent_remove(f"{g.WORK_DIR}/latest.pth")
         sly_utils.save_augs_config(g.state.augs_config_path, g.WORK_DIR)
         sly_utils.save_open_app_lnk(g.WORK_DIR)
-        sly_utils.upload_artifacts(
-            g.WORK_DIR, g.state.general_params.experiment_name, progress_widget=g.iter_progress
+        out_path = sly_utils.upload_artifacts(
+            g.WORK_DIR, g.state.experiment_name, progress_widget=g.iter_progress
         )
+
+        # show done labels
+        file_info = g.api.file.get_info_by_path(g.TEAM_ID, out_path + "/config.py")
+        show_done_label(file_info)
+
+        if sly.is_production():
+            # set link to artifacts in workspace tasks
+            g.api.task.set_output_directory(g.api.task_id, file_info.id, out_path)
+            g.app.stop()
 
 
 @stop_train_btn.click
@@ -144,6 +160,3 @@ def update_prediction_preview(img_path: str, ann_pred: sly.Annotation, ann_gt: s
 
 def clear_working_dirs():
     sly.fs.remove_dir(g.app_dir)
-    # sly.fs.remove_dir(g.PROJECT_DIR)
-    # sly.fs.remove_dir(g.PROJECT_SEG_DIR)
-    # sly.fs.remove_dir(g.app_dir + "/work_dir")

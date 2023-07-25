@@ -58,3 +58,5 @@ class State:
         self.general_params = general_params
         self.checkpoint_params = checkpoint_params
         self.optimizer_params = optimizer_params
+
+        self.experiment_name = self.general_params.experiment_name
