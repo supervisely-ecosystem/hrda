@@ -1,11 +1,8 @@
 import os
-from pathlib import Path
-import shutil
 import numpy as np
 from requests_toolbelt import MultipartEncoderMonitor
 from supervisely.app.widgets import Progress
 
-from tqdm import tqdm
 import src.globals as g
 import supervisely as sly
 
@@ -56,8 +53,16 @@ def get_local_weights_path(remote_weights_path: str):
     return weights_path
 
 
-def download_custom_model_weights(remote_weights_path: str, progress_cb=None):
+def download_custom_model_weights(remote_weights_path: str, progress_widget: Progress = None):
     # download .pth
+    if progress_widget:
+        message = "Downloading model weights..."
+        file_info = g.api.file.get_info_by_path(g.TEAM_ID, remote_weights_path)
+        progress_cb = get_progress_callback_for_downloading(
+            progress_widget, message, file_info.sizeb
+        )
+    else:
+        progress_cb = None
     weights_path = get_local_weights_path(remote_weights_path)
     g.api.file.download(g.TEAM_ID, remote_weights_path, weights_path, progress_cb=progress_cb)
     return weights_path
@@ -69,6 +74,33 @@ def download_custom_model(remote_weights_path: str):
     return weights_path, config_path
 
 
+def get_progress_callback_for_uploading(progress_widget: Progress, message, size_bytes):
+    progress = progress_widget(
+        message=message,
+        total=size_bytes,
+        unit="b",
+        unit_divisor=1024,
+        unit_scale=True,
+    )
+
+    def progress_cb(monitor: MultipartEncoderMonitor):
+        progress.update(int(monitor.bytes_read - progress.n))
+
+    return progress_cb
+
+
+def get_progress_callback_for_downloading(progress_widget: Progress, message, size_bytes):
+    progress_cb = progress_widget(
+        message=message,
+        total=size_bytes,
+        unit_divisor=1024,
+        unit_scale=True,
+        unit="b",
+    ).update
+
+    return progress_cb
+
+
 def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget: Progress = None):
     if not experiment_name:
         experiment_name = f"hrda"
@@ -76,19 +108,12 @@ def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget
 
     if progress_widget:
         progress_widget.show()
-        work_dir_p = Path(work_dir)
-        nbytes = sum(f.stat().st_size for f in work_dir_p.glob("**/*") if f.is_file())
-        pbar = progress_widget(
-            message="Uploading to Team Files...",
-            total=int(nbytes / 1024 / 1024),
-            unit="MB",
+        dir_size_bytes = sly.fs.get_directory_size(work_dir)
+        progress_cb = get_progress_callback_for_uploading(
+            progress_widget, "Uploading to Team Files...", dir_size_bytes
         )
-
-        def cb(monitor: MultipartEncoderMonitor):
-            pbar.update(int(monitor.bytes_read / 1024 / 1024 - pbar.n))
-
     else:
-        cb = None
+        progress_cb = None
 
     task_id = g.api.task_id or ""
     team_files_dir = os.path.join(g.TEAMFILES_UPLOAD_DIR, f"{task_id}_{experiment_name}")
@@ -96,7 +121,7 @@ def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget
         g.TEAM_ID,
         work_dir,
         team_files_dir,
-        progress_size_cb=cb,
+        progress_size_cb=progress_cb,
     )
     return out_path
 

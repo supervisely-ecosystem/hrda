@@ -74,7 +74,7 @@ def get_selected_custom_path() -> str:
 
 architecture_select = SelectString([""])
 model_table = RadioTable([""], [[""]])
-text = Text()
+text = Text(status="info")
 
 load_from = Switch(True)
 load_from_field = Field(

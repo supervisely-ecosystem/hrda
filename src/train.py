@@ -8,15 +8,14 @@ from tools import train as train_cli
 def train():
     state.update()
     if state.is_custom_model_selected:
-        progress_cb = g.iter_progress(message="Downloading model weights...").update
-        sly_utils.download_custom_model_weights(state.remote_weights_path, progress_cb)
+        sly_utils.download_custom_model_weights(state.remote_weights_path, g.iter_progress)
     sly_dataset.download_datasets(g.PROJECT_ID, state.selected_dataset_ids)
     sly_dataset.prepare_datasets(state.classes)
     # TODO: Can we don't import training_ui?
-    g.iter_progress(message="Preparing the model...", total=1)
+    g.iter_progress(message="Training initialization...", total=1)
     cfg = mmcv.Config.fromfile("configs/supervisely/base.py")
     update_config(cfg)
-    cfg.dump("config.py")  # TODO: don't go this way
+    cfg.dump("config.py")
     train_cli.main(["config.py"])
 
 
