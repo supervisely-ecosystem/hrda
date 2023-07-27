@@ -88,7 +88,7 @@ class OptimizerParams(InputForm):
         )
 
         self.warmup_iters = Field(
-            InputNumber(600, min=0), "Warmup", "The number of warmup iterations."
+            InputNumber(200, min=0), "Warmup", "The number of warmup iterations."
         )
         self.scheduler_power = Field(
             InputNumber(1.0, min=0),

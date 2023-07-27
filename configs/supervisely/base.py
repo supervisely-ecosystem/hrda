@@ -27,7 +27,13 @@ checkpoint_config = dict(
     save_optimizer=save_optimizer,
 )
 
-custom_hooks = [dict(type="SuperviselyHook")]
+log_config = dict(
+    interval=1,
+    hooks=[
+        dict(type="TextLoggerHook", by_epoch=False),
+        dict(type="SuperviselyHook"),
+    ],
+)
 
 # HRDA Configuration
 input_size = [512, 512]
@@ -85,7 +91,7 @@ optimizer = dict(
 
 
 # LR scheduler
-warmup_iters = 1000
+warmup_iters = 500
 policy = "poly"
 
 lr_config = dict(
