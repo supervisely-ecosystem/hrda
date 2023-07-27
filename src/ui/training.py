@@ -139,7 +139,8 @@ def update_prediction_preview(img_path: str, ann_pred: sly.Annotation, ann_gt: s
     prediction_preview.append(static_path, annotation=ann_pred, title=f"Prediction ({fname})")
 
     # TODO: debug
-    if sly.is_development():
+    # if sly.is_development():
+    if True:
         img = sly.image.read(dst_path)
         ann_pred.draw_pretty(img, thickness=0)
         sly.image.write("debug_ann_pred.jpg", img)
