@@ -73,6 +73,7 @@ def update_config(cfg):
     model.hr_crop_size = hr_crop_size
     model.test_cfg.crop_size = input_size
     model.test_cfg.stride = stride
+    model.pretrained = g.PRETRAINED_PATH
 
     cfg.load_from = state.local_weights_path
 
