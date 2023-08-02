@@ -83,7 +83,7 @@ class SuperviselyDataset(CustomDataset):
         self.project = sly.Project(g.PROJECT_SEG_DIR, sly.OpenMode.READ)
         self.CLASSES, self.PALETTE = get_classes_and_palette(self.project.meta)
         self.pseudo_margins = None
-        self.valid_mask_size = [512, 512]  # TODO: magic numbers?
+        self.valid_mask_size = [512, 512]  # TODO: pseudo_margins is not used yet
 
         if self.pseudo_margins is not None:
             assert pipeline[-1]["type"] == "Collect"
