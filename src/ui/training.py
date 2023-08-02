@@ -171,7 +171,7 @@ def start_train():
         sly.logger.info("The training was stopped.")
     except Exception as exc:
         no_errors = False
-        sly.logger.error("Error in training script.", exc_info=exc)
+        raise exc
     finally:
         reset_buttons()
         # free cuda memory
