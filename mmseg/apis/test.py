@@ -86,7 +86,7 @@ def single_gpu_test(model,
             h,w,c = img_meta['img_shape']
             dtype = result[0].dtype
             result = result[0][:h, :w].astype(np.uint8)
-            result = mmcv.imresize(result, ori_shape[:2][::-1])
+            result = mmcv.imresize(result, ori_shape[:2][::-1], interpolation="nearest")
             result = [result.astype(dtype)]
 
         if show or out_dir:
