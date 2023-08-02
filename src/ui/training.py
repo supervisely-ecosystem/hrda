@@ -11,6 +11,7 @@ from supervisely.app.widgets import (
     DoneLabel,
     GridGallery,
     Field,
+    ImagePairSequence
 )
 import torch
 
@@ -60,7 +61,7 @@ monitoring.add_stage(val_stage)
 
 
 # Prediction preview
-prediction_preview = GridGallery(2, enable_zoom=True, sync_views=True)
+prediction_preview = ImagePairSequence(opacity=0.6, enable_zoom=True, slider_title="")
 prediction_preview.hide()
 prediction_preview_f = Field(
     prediction_preview,
@@ -134,9 +135,8 @@ def update_prediction_preview(img_path: str, ann_pred: sly.Annotation, ann_gt: s
     dst_path = g.STATIC_DIR + "/" + fname
     static_path = "static/" + fname
     sly.fs.copy_file(img_path, dst_path)
-    prediction_preview.clean_up()
-    prediction_preview.append(static_path, annotation=ann_gt, title=f"Ground Truth ({fname})")
-    prediction_preview.append(static_path, annotation=ann_pred, title=f"Prediction ({fname})")
+    prediction_preview.append_left(static_path, ann=ann_gt, title=f"Ground Truth ({fname})")
+    prediction_preview.append_right(static_path, ann=ann_pred, title=f"Prediction ({fname})")
 
     # TODO: debug
     # if sly.is_development():
