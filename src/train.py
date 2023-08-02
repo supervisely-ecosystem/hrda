@@ -23,7 +23,10 @@ def update_config(cfg):
     general_params = state.general_params
     checkpoint_params = state.checkpoint_params
     optimizer_params = state.optimizer_params
-    input_size = (general_params.shorter_input_size, general_params.longer_input_size)
+    input_size = (
+        utils.round_to_divisor(general_params.shorter_input_size, 16),
+        utils.round_to_divisor(general_params.longer_input_size, 16),
+    )
 
     # General
     cfg.work_dir = g.WORK_DIR
