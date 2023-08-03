@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 from typing import Any, Dict, List, Literal
 from typing_extensions import Literal
 import torch
@@ -15,6 +16,8 @@ from mmseg.apis.inference import inference_segmentor, init_segmentor, LoadImage
 from mmseg.datasets.pipelines import Compose
 
 
+load_dotenv(os.path.expanduser("~/supervisely.env"))
+
 class HRDA(SemanticSegmentation):
     def load_on_device(
         self,
@@ -23,6 +26,7 @@ class HRDA(SemanticSegmentation):
     ):
         config_path, weights_path = self.download_model_files()
         self.load_model(config_path, weights_path, device)
+        self.checkpoint_name = self.gui.get_custom_link()
         print(f"✅ Model has been successfully loaded on {device.upper()} device")
 
     def load_model(self, config_path, weights_path, device="cuda:0"):
@@ -48,9 +52,8 @@ class HRDA(SemanticSegmentation):
 
     def get_info(self) -> dict:
         info = super().get_info()
-        info["model_name"] = self.selected_model_name
+        info["model_name"] = "HRDA"
         info["checkpoint_name"] = self.checkpoint_name
-        info["pretrained_on_dataset"] = self.dataset_name
         info["device"] = self.device
         return info
 
@@ -99,10 +102,16 @@ class HRDA(SemanticSegmentation):
                 # weights_path, config_path = self.download_pretrained_files(
                 #     selected_model, model_dir
                 # )
-                pass
+                raise NotImplementedError("Pretrained models don't supported for this model.")
             elif model_source == "Custom models":
                 custom_weights_link = self.gui.get_custom_link()
-                weights_path = self.download(custom_weights_link)
+                if sly.is_production():
+                    weights_path = self.download(custom_weights_link)
+                else:
+                    # try load weghts from app_dir to skip downloading
+                    weights_path = f"{sly.app.get_data_dir()}/models/{os.path.basename(custom_weights_link)}"
+                    if not sly.fs.file_exists(weights_path):
+                        weights_path = self.download(custom_weights_link)
                 remote_config_path = os.path.dirname(custom_weights_link)+"/config.py"
                 config_path = self.download(remote_config_path)
             return config_path, weights_path
