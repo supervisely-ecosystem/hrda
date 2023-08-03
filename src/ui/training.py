@@ -111,6 +111,7 @@ def show_done_widgets(file_info):
 
 def upload_and_finish():
     # prepare work_dir for uploading
+    sly.fs.remove_dir(f"{g.WORK_DIR}/class_mix_debug")
     sly.fs.silent_remove(f"{g.WORK_DIR}/latest.pth")
     sly_utils.save_augs_config(g.state.augs_config_path, g.WORK_DIR)
     sly_utils.save_open_app_lnk(g.WORK_DIR)
