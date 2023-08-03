@@ -1,3 +1,4 @@
+import warnings
 from src import globals as g
 from src.globals import state
 from src import utils, sly_dataset, sly_utils
@@ -16,7 +17,9 @@ def train():
     cfg = mmcv.Config.fromfile("configs/supervisely/base.py")
     update_config(cfg)
     cfg.dump("config.py")
-    train_cli.main(["config.py"])
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        train_cli.main(["config.py"])
 
 
 def update_config(cfg):
