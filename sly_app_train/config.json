@@ -12,7 +12,7 @@
     "segmentation & tracking",
     "train"
   ],
-  "description": "Train SegFormer model for segmentation in semi-supervised mode",
+  "description": "Train HRDA model for segmentation in semi-supervised mode",
   "docker_image": "supervisely/hrda:1.0.0",
   "instance_version": "6.6.7",
   "task_location": "workspace_tasks",
