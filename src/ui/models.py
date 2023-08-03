@@ -122,7 +122,8 @@ def update_selected_model(selected_row):
 
 
 def reset_widgets():
-    update_models()
+    arch_name = get_selected_architecture_name()
+    update_models(arch_name)
 
 
 reset_widgets()
