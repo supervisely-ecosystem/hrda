@@ -69,23 +69,17 @@ def single_gpu_test(model,
             # we will unpad and rescale later
             data["rescale"] = False
 
-        ### DEBUG
-        # input_shape = data['img'][0].shape
-        # print("")
-        # print(f"{ori_shape=}, {input_shape=}")
-        ###
-
         with torch.no_grad():
             result = model(return_loss=False, **data)
         
-        # debug
-        # print(f"{result[0].shape=}")
-
         if img_meta.get("pad_shape"):
             # unpad and resize manually
             h,w,c = img_meta['img_shape']
             dtype = result[0].dtype
             result = result[0][:h, :w].astype(np.uint8)
+            # "nearest" interpolation can shift mask slightly
+            # that leads to inaccurate mask on borders.
+            # The alternative solution is to predict the image in its original size.
             result = mmcv.imresize(result, ori_shape[:2][::-1], interpolation="nearest")
             result = [result.astype(dtype)]
 
