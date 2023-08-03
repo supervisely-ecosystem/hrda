@@ -80,8 +80,8 @@ text = Text(status="info")
 
 input_file = TeamFilesSelector(TEAM_ID, selection_file_type="file")
 path_field = Field(
-    title="Path to weights file",
-    description="Copy path in Team Files",
+    title="Select weights file from Team Files",
+    description="Provide a path to *.pth weights file.",
     content=input_file,
 )
 
