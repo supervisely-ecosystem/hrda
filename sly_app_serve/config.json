@@ -1,0 +1,25 @@
+{
+  "type": "app",
+  "version": "2.0.0",
+  "name": "Serve HRDA",
+  "entrypoint": "python -m uvicorn src.serve.main:app --host 0.0.0.0 --port 8000",
+  "port": 8000,
+  "categories": [
+    "neural network",
+    "images",
+    "videos",
+    "instance segmentation",
+    "segmentation & tracking",
+    "serve"
+  ],
+  "description": "Deploy HRDA model for inference",
+  "docker_image": "supervisely/hrda:1.0.0",
+  "instance_version": "6.6.7",
+  "task_location": "workspace_tasks",
+  "need_gpu": false,
+  "gpu": "preferred",
+  "community_agent": false,
+  "license": {
+    "type": "Apache-2.0" 
+  }
+}
