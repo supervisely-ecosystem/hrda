@@ -8,11 +8,11 @@
     "neural network",
     "images",
     "videos",
-    "instance segmentation",
+    "semantic segmentation",
     "segmentation & tracking",
     "train"
   ],
-  "description": "Training in semi-supervised mode.",
+  "description": "Train SegFormer model for segmentation in semi-supervised mode",
   "docker_image": "supervisely/hrda:1.0.0",
   "instance_version": "6.6.7",
   "task_location": "workspace_tasks",
