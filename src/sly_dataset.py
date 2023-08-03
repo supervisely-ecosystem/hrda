@@ -16,13 +16,13 @@ def download_datasets(project_id, dataset_ids=None):
     return project_dir
 
 
-def prepare_datasets(selected_classes):
+def prepare_datasets(selected_classes: list):
     # TODO: hardcoded progress_cb is bad here
     progress_cb = g.iter_progress(
         message="Converting annotations...", total=g.state.n_images
     ).update
     sly.Project.to_segmentation_task(
-        g.PROJECT_DIR, g.PROJECT_SEG_DIR, target_classes=selected_classes, progress_cb=progress_cb
+        g.PROJECT_DIR, g.PROJECT_SEG_DIR, target_classes=selected_classes.copy(), progress_cb=progress_cb
     )
     project = sly.Project(g.PROJECT_SEG_DIR, sly.OpenMode.READ)
     convert_project_masks(project, ann_dir=g.ANN_DIR)
