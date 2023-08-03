@@ -80,7 +80,7 @@ class OptimizerParams(InputForm):
         self.optimizer_type = Field(
             SelectString(["AdamW", "SGD"]), "Optimizer", "The type of the optimizer."
         )
-        self.base_lr = Field(InputNumber(1e-4, min=0), "Initial LR", "The initial learning rate")
+        self.base_lr = Field(InputNumber(1e-4, min=0), "Initial LR", "The initial learning rate after warmup.")
         self.weight_decay = Field(
             InputNumber(1e-4),
             "Weight decay",

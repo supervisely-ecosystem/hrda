@@ -1,3 +1,4 @@
+from typing import List
 import supervisely as sly
 from supervisely.app.widgets import (
     RadioTabs,
@@ -16,9 +17,10 @@ from src.globals import TEAM_ID
 
 
 class ModelItem:
-    def __init__(self, name, architecture_name):
+    def __init__(self, name, architecture_name, num_params):
         self.name = name
         self.architecture_name = architecture_name
+        self.num_params = num_params
 
 
 def get_architecture_list():
@@ -27,14 +29,15 @@ def get_architecture_list():
 
 
 def get_model_list(architecture_name):
-    names = ["SegFormer MiT-b5"]
-    models = [ModelItem(name, architecture_name) for name in names]
+    models = [
+        ModelItem("SegFormer MiT-b5", architecture_name, 82.0),
+    ]
     return models
 
 
-def _get_table_data(models: list):
-    columns = ["Model variant"]
-    rows = [[m.name for m in models]]
+def _get_table_data(models: List[ModelItem]):
+    columns = ["Model variant", "Params (M)"]
+    rows = [[m.name, m.num_params] for m in models]
     subtitles = [None] * len(columns)
     return columns, rows, subtitles
 
@@ -57,7 +60,7 @@ def is_pretrained_model_selected():
 
 
 def get_selected_architecture_name() -> str:
-    return architecture_select.get_value()
+    return "SegFormer"
 
 
 def get_selected_pretrained_model() -> ModelItem:
@@ -72,7 +75,6 @@ def get_selected_custom_path() -> str:
     return paths[0] if len(paths) > 0 else ""
 
 
-architecture_select = SelectString([""])
 model_table = RadioTable([""], [[""]])
 text = Text(status="info")
 
@@ -93,7 +95,7 @@ path_field = Field(
 radio_tabs = RadioTabs(
     titles=["Pretrained models", "Custom weights"],
     contents=[
-        Container(widgets=[architecture_select, model_table, text, load_from_field]),
+        Container(widgets=[model_table, text, load_from_field]),
         path_field,
     ],
 )
@@ -104,12 +106,6 @@ card = Card(
     content=Container([radio_tabs]),
     lock_message="Select a task to unlock.",
 )
-
-
-def update_architecture():
-    arch_names = get_architecture_list()
-    architecture_select.set(arch_names)
-    update_models(architecture_select.get_value())
 
 
 def update_models(arch_name):
@@ -126,7 +122,7 @@ def update_selected_model(selected_row):
 
 
 def reset_widgets():
-    update_architecture()
+    update_models()
 
 
 reset_widgets()
