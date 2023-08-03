@@ -78,13 +78,6 @@ def get_selected_custom_path() -> str:
 model_table = RadioTable([""], [[""]])
 text = Text(status="info")
 
-load_from = Switch(True)
-load_from_field = Field(
-    load_from,
-    "Download pre-trained model",
-    "Whether to download pre-trained weights and finetune the model or train it from scratch.",
-)
-
 input_file = TeamFilesSelector(TEAM_ID, selection_file_type="file")
 path_field = Field(
     title="Path to weights file",
@@ -95,7 +88,7 @@ path_field = Field(
 radio_tabs = RadioTabs(
     titles=["Pretrained models", "Custom weights"],
     contents=[
-        Container(widgets=[model_table, text, load_from_field]),
+        Container(widgets=[model_table, text]),
         path_field,
     ],
 )
