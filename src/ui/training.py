@@ -139,12 +139,10 @@ def update_prediction_preview(img_path: str, ann_pred: sly.Annotation, ann_gt: s
     prediction_preview.append_left(static_path, ann=ann_gt, title=f"Ground Truth ({fname})")
     prediction_preview.append_right(static_path, ann=ann_pred, title=f"Prediction ({fname})")
 
-    # TODO: debug
-    # if sly.is_development():
-    if True:
+    if os.environ.get("LOG_LEVEL", "DEBUG") == "DEBUG":
         img = sly.image.read(dst_path)
         ann_pred.draw_pretty(img, thickness=0)
-        sly.image.write("debug_ann_pred.jpg", img)
+        sly.image.write(f"{g.WORK_DIR}/debug_ann_pred.jpg", img)
 
     if prediction_preview.is_hidden():
         prediction_preview.show()
