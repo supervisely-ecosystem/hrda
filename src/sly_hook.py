@@ -14,6 +14,7 @@ class SuperviselyHook(Hook):
     def __init__(self, chart_update_interval: int = 1, **kwargs):
         self.chart_update_interval = chart_update_interval
         self.iter_progress = None
+        self._workaround_sly_id = 0  # to work around a bug in GridGallery widget
 
     def before_run(self, runner: Runner) -> None:
         train_ui.show_train_widgets()
@@ -71,8 +72,9 @@ class SuperviselyHook(Hook):
                 ann_path = f"{dataset.ann_dir}/{img_info['ann']['seg_map']}"
                 gt = sly.image.read(ann_path)
                 pred = outputs[0]
-                ann_pred = mask2annotation(pred, dataset.CLASSES, dataset.PALETTE)
-                ann_gt = mask2annotation(gt, dataset.CLASSES, dataset.PALETTE)
+                ann_pred = mask2annotation(pred, dataset.CLASSES, dataset.PALETTE, self._workaround_sly_id)
+                ann_gt = mask2annotation(gt, dataset.CLASSES, dataset.PALETTE, self._workaround_sly_id+1)
+                self._workaround_sly_id += 2
                 train_ui.update_prediction_preview(img_path, ann_pred, ann_gt)
 
             else:

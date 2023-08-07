@@ -7,7 +7,7 @@ import src.globals as g
 import supervisely as sly
 
 
-def mask2annotation(x: np.ndarray, classes, palette, skip_bg=True):
+def mask2annotation(x: np.ndarray, classes, palette, sly_id, skip_bg=True):
     assert len(classes) == len(palette)
 
     if x.ndim == 3:
@@ -23,6 +23,7 @@ def mask2annotation(x: np.ndarray, classes, palette, skip_bg=True):
         mask = x == cls_idx
         if mask.any():
             b = sly.Bitmap(mask)
+            b.sly_id = sly_id  # use this trick to work around a bug in GridGallery widget
             obj_cls = sly.ObjClass(classes[cls_idx], sly.Bitmap, palette[cls_idx])
             l = sly.Label(b, obj_cls)
             labels.append(l)
