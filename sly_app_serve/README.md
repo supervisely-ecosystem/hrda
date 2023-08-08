@@ -1,5 +1,5 @@
 <div align="center" markdown>
-<img src="xxx"/>  
+<img src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/59697391-5f58-472c-bdcb-7341bfc7ec79"/>  
 
 # Serve HRDA
 
