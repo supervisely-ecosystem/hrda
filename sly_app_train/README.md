@@ -5,6 +5,7 @@
 
 <p align="center">
   <a href="#Overview">Overview</a> •
+  <a href="#Preparing-the-data">Preparing the data</a> •
   <a href="#How-To-Run">How To Run</a> •
   <a href="#Related-apps">Related apps</a> •
   <a href="#Screenshot">Screenshot</a> •
@@ -21,7 +22,21 @@
 
 # Overview
 
-xxx
+HRDA model is not a usual segmentation model. It is useful in cases where your trained model need to generalize well to new, unseen data. HRDA employs domain adaptation techniques, specifically pseudo-labeling, to enhance generalization across varying data domains.
+
+**We provide two scenarios in which HRDA model offers advantages:**
+1. **Training on synthetic data**: Synthetic data refers to data that wasn't directly obtained from the real world, but was generated using algorithms, simulations, or other artificial means. Such data will always have differences compared to real world data. These discrepancies critically affect the model, potentially leading to suboptimal performance. HRDA will help to address this problem ensuring a more consistent and reliable result.
+
+2. **Semi-supervised learning**: In this case we usually have a small amount of labeled data in conjunction with a larger pool of unlabeled data. The labeled portion provides an initial understanding of the problem, enabling HRDA to leverage unlabeled data and further improve its performance.
+
+# Preparing the data
+For this app you should have a project with 3 datasets:
+1. Labeled dataset (e.g. it can be either synthetic data or a small part of labeled real data in case of semi-supervised learning)
+2. Unlabeled dataset (it can be real data with no annotations)
+3. Labeled dataset for validation
+
+This App can help to split your data: [split-dataset](https://ecosystem.supervisely.com/apps/split-dataset)
+
 
 # How To Run
 
@@ -41,12 +56,12 @@ xxx
    
 # Related apps
 
-- [Export to YOLOv8 format](https://ecosystem.supervise.ly/apps/export-to-yolov8) - app allows to transform data from Supervisely format to YOLOv8 format.   
-    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-to-yolov8" src="https://github.com/supervisely-ecosystem/yolov8/assets/115161827/01d6658f-11c3-40a3-8ff5-100a27fa1480" height="70px" margin-bottom="20px"/>  
-
 - [Serve HRDA](https://ecosystem.supervise.ly/apps/hrda/sly_app_serve) - app allows to deploy YOLOv8 model as REST API service.   
     <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_serve" src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/9539f5f3-3413-40d1-8880-bed7e1061c3c" height="70px" margin-bottom="20px"/>
   
+- [Export to YOLOv8 format](https://ecosystem.supervise.ly/apps/export-to-yolov8) - app allows to transform data from Supervisely format to YOLOv8 format.   
+    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-to-yolov8" src="https://github.com/supervisely-ecosystem/yolov8/assets/115161827/01d6658f-11c3-40a3-8ff5-100a27fa1480" height="70px" margin-bottom="20px"/>  
+
 # Screenshot
 
 <img src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/c3e4bae6-02b9-4d2e-8f59-ac65996505e7"/>

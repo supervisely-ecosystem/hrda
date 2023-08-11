@@ -20,7 +20,13 @@
 
 # Overview
 
-xxx
+HRDA model is not a usual segmentation model. It is useful in cases where your trained model need to generalize well to new, unseen data. HRDA employs domain adaptation techniques, specifically pseudo-labeling, to enhance generalization across varying data domains.
+
+**We provide two scenarios in which HRDA model offers advantages:**
+1. **Training on synthetic data**: Synthetic data refers to data that wasn't directly obtained from the real world, but was generated using algorithms, simulations, or other artificial means. Such data will always have differences compared to real world data. These discrepancies critically affect the model, potentially leading to suboptimal performance. HRDA will help to address this problem ensuring a more consistent and reliable result.
+
+2. **Semi-supervised learning**: In this case we usually have a small amount of labeled data in conjunction with a larger pool of unlabeled data. The labeled portion provides an initial understanding of the problem, enabling HRDA to leverage unlabeled data and further improve its performance.
+
 
 # How To Run
 
