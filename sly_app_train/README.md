@@ -52,7 +52,8 @@ This App can help to split your data: [split-dataset](https://ecosystem.supervis
 6. Configure training hyperparameters
    <img src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/f04cfcdc-fb9c-4bba-8fbd-21289487d730" /> <br> </br>
 7. Press `Train` button and observe the logs, charts and prediction visualizations
-   <img src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/924fa93e-ef42-4daa-987e-5629da1c1530" /> <br> </br>
+   <img src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/924fa93e-ef42-4daa-987e-5629da1c1530" /> <br> After each validation epoch the visualization of predictions will be updated <br>
+   <img src="https://github.com/supervisely-ecosystem/hrda/assets/31512713/a0049731-7a26-467f-950a-5b83602fbc6c" /> <br> </br>
    
 # Related apps
 
