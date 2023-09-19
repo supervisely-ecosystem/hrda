@@ -161,7 +161,8 @@ def start_train():
     prediction_preview.clean_up()
     finish_btn.hide()
 
-    clear_working_dirs()
+    # currently we can't clear the app_dir, due to conflicts in AugmentationsWithTabs
+    # clear_working_dirs()
 
     no_errors = True
     try:
