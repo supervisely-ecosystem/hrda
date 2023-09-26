@@ -1,1 +1,2 @@
-supervisely==6.72.136
+# supervisely==6.72.136
+git+https://github.com/supervisely/supervisely.git@fix-appp-session-progress-for-custom-models
