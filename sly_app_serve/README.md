@@ -34,7 +34,7 @@ HRDA model is not a usual segmentation model. It is useful in cases where your t
 
 This model does not come with pre-trained models option. To create a custom model, use the application below:
 - [Train HRDA](https://ecosystem.supervise.ly/apps/supervisely-ecosystem/hrda/sly_app_train) - app allows to create custom HRDA weights through training process.
-    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_train" src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/de5c2f32-2c49-4f42-86f2-6f8a4c5c7908" height="70px" margin-bottom="20px"/>
+    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_train" src="https://github.com/supervisely-ecosystem/hrda/assets/119248312/79e995cf-8fae-4fd6-ab42-39d17b7da5b7" height="70px" margin-bottom="20px"/>
 
 To serve the custom model, copy model file path from Team Files, paste it into the dedicated field, select the device and press `Serve` button
 
@@ -49,7 +49,7 @@ To serve the custom model, copy model file path from Team Files, paste it into t
   <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/apply-nn-to-videos-project" src="https://imgur.com/LDo8K1A.png" height="70px" margin-bottom="20px" />
 
 - [Train HRDA](https://ecosystem.supervise.ly/apps/supervisely-ecosystem/hrda/sly_app_train) - app allows to create custom HRDA weights through training process.
-    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_train" src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/de5c2f32-2c49-4f42-86f2-6f8a4c5c7908" height="70px" margin-bottom="20px"/>
+    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_train" src="https://github.com/supervisely-ecosystem/hrda/assets/119248312/79e995cf-8fae-4fd6-ab42-39d17b7da5b7" height="70px" margin-bottom="20px"/>
     
 # Acknowledgment
 
