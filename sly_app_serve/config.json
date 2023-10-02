@@ -17,7 +17,7 @@
   "instance_version": "6.6.7",
   "task_location": "application_sessions",
   "need_gpu": false,
-  "icon": "https://github.com/supervisely-ecosystem/hrda/assets/115161827/29585d9f-cbdf-4966-a83a-28fdbf6cee2d",
+  "icon": "https://github.com/supervisely-ecosystem/hrda/assets/119248312/4adaa6ba-5f98-4f63-8fbf-26446bd3892f",
   "icon_cover": true,
   "poster": "https://github.com/supervisely-ecosystem/hrda/assets/115161827/59697391-5f58-472c-bdcb-7341bfc7ec79",
   "gpu": "preferred",
