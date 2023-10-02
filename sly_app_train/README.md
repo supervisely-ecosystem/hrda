@@ -58,7 +58,7 @@ This App can help to split your data: [split-dataset](https://ecosystem.supervis
 # Related apps
 
 - [Serve HRDA](https://ecosystem.supervise.ly/apps/hrda/sly_app_serve) - app allows to deploy YOLOv8 model as REST API service.   
-    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_serve" src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/9539f5f3-3413-40d1-8880-bed7e1061c3c" height="70px" margin-bottom="20px"/>
+    <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_serve" src="https://github.com/supervisely-ecosystem/hrda/assets/119248312/330f13e9-bc84-45ce-a9a3-d56fafec9c97" height="70px" margin-bottom="20px"/>
   
 - [Export to YOLOv8 format](https://ecosystem.supervise.ly/apps/export-to-yolov8) - app allows to transform data from Supervisely format to YOLOv8 format.   
     <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/export-to-yolov8" src="https://github.com/supervisely-ecosystem/yolov8/assets/115161827/01d6658f-11c3-40a3-8ff5-100a27fa1480" height="70px" margin-bottom="20px"/>  
