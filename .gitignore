@@ -127,3 +127,4 @@ configs/generated/
 /app_data
 /todo.txt
 /config.py
+/my_model
