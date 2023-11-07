@@ -7,6 +7,7 @@
   <a href="#Overview">Overview</a> •
   <a href="#Preparing-the-data">Preparing the data</a> •
   <a href="#How-To-Run">How To Run</a> •
+  <a href="#How-To-Use-Your-Trained-Model-Outside-Supervisely">How To Use Your Trained Model Outside Supervisely</a> •
   <a href="#Related-apps">Related apps</a> •
   <a href="#Screenshot">Screenshot</a> •
   <a href="#Acknowledgment">Acknowledgment</a>
@@ -54,7 +55,13 @@ This App can help to split your data: [split-dataset](https://ecosystem.supervis
 7. Press `Train` button and observe the logs, charts and prediction visualizations
    <img src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/924fa93e-ef42-4daa-987e-5629da1c1530" /> <br> After each validation epoch the visualization of predictions will be updated <br>
    <img src="https://github.com/supervisely-ecosystem/hrda/assets/31512713/a0049731-7a26-467f-950a-5b83602fbc6c" /> <br> </br>
-   
+
+
+# How To Use Your Trained Model Outside Supervisely
+
+You can use your trained models outside Supervisely platform without any dependencies on Supervisely SDK. You need to download a config file and model weights (.pth) from Team Files. See this [Jupyter Notebook](https://github.com/supervisely-ecosystem/hrda/blob/master/inference_outside_supervisely.ipynb) for details.
+
+
 # Related apps
 
 - [Serve HRDA](https://ecosystem.supervise.ly/apps/hrda/sly_app_serve) - app allows to deploy YOLOv8 model as REST API service.   

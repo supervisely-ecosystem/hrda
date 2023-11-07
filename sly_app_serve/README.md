@@ -6,6 +6,7 @@
 <p align="center">
   <a href="#Overview">Overview</a> •
   <a href="#How-To-Run">How To Run</a> •
+  <a href="#How-To-Use-Your-Trained-Model-Outside-Supervisely">How To Use Your Trained Model Outside Supervisely</a> •
   <a href="#Related-apps">Related Apps</a> •
   <a href="#Acknowledgment">Acknowledgment</a>
 </p>
@@ -39,6 +40,12 @@ This model does not come with pre-trained models option. To create a custom mode
 To serve the custom model, copy model file path from Team Files, paste it into the dedicated field, select the device and press `Serve` button
 
 <img src="https://github.com/supervisely-ecosystem/hrda/assets/115161827/2c6a2f08-7bdd-476f-83ab-d9431e16dea3"/>
+
+
+# How To Use Your Trained Model Outside Supervisely
+
+You can use your trained models outside Supervisely platform without any dependencies on Supervisely SDK. You need to download a config file and model weights (.pth) from Team Files. See this [Jupyter Notebook](https://github.com/supervisely-ecosystem/hrda/blob/master/inference_outside_supervisely.ipynb) for details.
+
 
 # Related apps
 
