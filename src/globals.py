@@ -10,7 +10,7 @@ if sly.is_development():
     load_dotenv("local.env")
 
 api: sly.Api = sly.Api.from_env()
-app_dir = sly.app.get_data_dir()
+app_dir = sly.app.get_synced_data_dir()
 app: sly.Application = None
 iter_progress: sly.app.widgets.Progress = None
 
