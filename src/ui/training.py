@@ -166,7 +166,8 @@ def start_train():
 
     no_errors = True
     try:
-        train.train()
+        with g.app.run_with_stop_app_suppression():
+            train.train()
     except StopIteration as exc:
         sly.logger.info("The training was stopped.")
     except Exception as exc:
