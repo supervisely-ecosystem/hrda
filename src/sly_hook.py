@@ -86,10 +86,10 @@ class SuperviselyHook(Hook):
             checkpoint_hook._save_checkpoint(runner)
             raise StopIteration()
     
-        if g.app.app_is_stopped():
+        if g.app.is_stopped():
             checkpoint_hook: CheckpointHook = self._get_checkpoint_hook(runner)
             checkpoint_hook._save_checkpoint(runner)
-            raise g.app.StopApp()
+            raise g.app.StopException()
 
     def extract_metrics(self, results: dict):
         per_class = {}
