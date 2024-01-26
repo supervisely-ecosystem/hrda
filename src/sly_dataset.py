@@ -9,6 +9,8 @@ from src import globals as g
 
 def download_datasets(project_id, dataset_ids=None):
     project_dir = g.PROJECT_DIR
+    if sly.fs.dir_exists(project_dir):
+        sly.fs.remove_dir(project_dir)
     dataset_ids = list(set(dataset_ids))
     # TODO: hardcoded progress_cb is bad here
     progress_cb = g.iter_progress(message="Downloading datasets...", total=g.state.n_images).update
