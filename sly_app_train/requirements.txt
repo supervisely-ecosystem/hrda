@@ -1,3 +1,1 @@
-#supervisely==6.72.193
-# git+https://github.com/supervisely/supervisely.git@v2-stop-rename
-git+https://github.com/supervisely/supervisely.git@fix-starlette-template-response
+supervisely==6.73.22
