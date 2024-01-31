@@ -23,6 +23,8 @@ def prepare_datasets(selected_classes: list):
     progress_cb = g.iter_progress(
         message="Converting annotations...", total=g.state.n_images
     ).update
+    if sly.fs.dir_exists(g.PROJECT_SEG_DIR):
+        sly.fs.remove_dir(g.PROJECT_SEG_DIR)
     sly.Project.to_segmentation_task(
         g.PROJECT_DIR, g.PROJECT_SEG_DIR, target_classes=selected_classes.copy(), progress_cb=progress_cb
     )
