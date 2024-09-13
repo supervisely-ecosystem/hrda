@@ -1,31 +1,29 @@
 {
-  "type": "app",
-  "version": "2.0.0",
-  "name": "Serve HRDA",
-  "entrypoint": "python -m uvicorn src.serve.main:model.app --host 0.0.0.0 --port 8000",
-  "port": 8000,
-  "categories": [
-    "neural network",
-    "images",
-    "videos",
-    "semantic segmentation",
-    "segmentation & tracking",
-    "serve"
-  ],
-  "description": "Deploy HRDA model for inference",
-  "docker_image": "supervisely/hrda:1.0.0",
-  "instance_version": "6.8.88",
-  "task_location": "application_sessions",
-  "need_gpu": false,
-  "icon": "https://github.com/supervisely-ecosystem/hrda/assets/119248312/4adaa6ba-5f98-4f63-8fbf-26446bd3892f",
-  "icon_cover": true,
-  "poster": "https://github.com/supervisely-ecosystem/hrda/assets/115161827/59697391-5f58-472c-bdcb-7341bfc7ec79",
-  "gpu": "preferred",
-  "community_agent": false,
-  "license": {
-    "type": "Apache-2.0"
-  },
-  "session_tags": [
-    "deployed_nn"
-  ]
+	"type": "app",
+	"version": "2.0.0",
+	"name": "Serve HRDA",
+	"entrypoint": "python -m uvicorn src.serve.main:model.app --host 0.0.0.0 --port 8000",
+	"port": 8000,
+	"categories": [
+		"neural network",
+		"images",
+		"videos",
+		"semantic segmentation",
+		"segmentation & tracking",
+		"serve"
+	],
+	"description": "Deploy HRDA model for inference",
+	"docker_image": "supervisely/hrda:dev",
+	"instance_version": "6.11.16",
+	"task_location": "application_sessions",
+	"need_gpu": false,
+	"icon": "https://github.com/supervisely-ecosystem/hrda/assets/119248312/4adaa6ba-5f98-4f63-8fbf-26446bd3892f",
+	"icon_cover": true,
+	"poster": "https://github.com/supervisely-ecosystem/hrda/assets/115161827/59697391-5f58-472c-bdcb-7341bfc7ec79",
+	"gpu": "preferred",
+	"community_agent": false,
+	"license": {
+		"type": "Apache-2.0"
+	},
+	"session_tags": ["deployed_nn"]
 }
