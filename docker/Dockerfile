@@ -5,7 +5,7 @@ RUN apt update && apt install python3-pip -y
 RUN apt-get install -y git
 
 RUN pip3 install torch==1.8.2 torchvision==0.9.2 --extra-index-url https://download.pytorch.org/whl/lts/1.8/cu111 # buildkit
-RUN RUN pip3 install mmcv-full==1.7.2
+RUN pip3 install mmcv-full==1.4.0
 RUN pip3 install timm cityscapesscripts==2.2.0 cycler==0.10.0
 RUN pip3 install gdown humanfriendly==9.2 kiwisolver==1.2.0
 RUN pip3 install kornia==0.5.8 Pillow==8.3.1 prettytable==2.1.0
