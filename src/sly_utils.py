@@ -121,9 +121,9 @@ def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget
 
     print("---------------------------------------")
     print(f"TASK ID: {task_id}")
-    print("Upload params")
+    print("Upload params:")
     print(f"TEAM_ID: {g.TEAM_ID}")
-    print(f"Work dir: {team_files_dir}")
+    print(f"Work dir: {work_dir}")
     print(f"Team files dir: {team_files_dir}")
     print("---------------------------------------")
     
