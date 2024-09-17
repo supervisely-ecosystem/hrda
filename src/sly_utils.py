@@ -118,25 +118,13 @@ def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget
 
     task_id = g.api.task_id or ""
     team_files_dir = "/" + os.path.join(g.TEAMFILES_UPLOAD_DIR, f"{task_id}_{experiment_name}")
-
-    print("---------------------------------------")
-    print(f"TASK ID: {task_id}")
-    print("Upload params:")
-    print(f"TEAM_ID: {g.TEAM_ID}")
-    print(f"Work dir: {work_dir}")
-    print(f"Team files dir: {team_files_dir}")
-    print("---------------------------------------")
-    
     out_path = g.api.file.upload_directory(
         g.TEAM_ID,
         work_dir,
         team_files_dir,
         progress_size_cb=progress_cb,
     )
-    
-    print(f"Orig output path: {out_path}")
     out_path = out_path.lstrip("/")
-    print(f"Output path stripped: {out_path}")
     return out_path
 
 
