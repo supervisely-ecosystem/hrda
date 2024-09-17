@@ -133,8 +133,10 @@ def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget
         team_files_dir,
         progress_size_cb=progress_cb,
     )
-
-    print(f"Output path: {out_path}")
+    
+    print(f"Orig output path: {out_path}")
+    out_path = out_path.lstrip("/")
+    print(f"Output path stripped: {out_path}")
     return out_path
 
 
