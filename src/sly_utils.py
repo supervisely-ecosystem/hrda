@@ -117,13 +117,14 @@ def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget
         progress_cb = None
 
     task_id = g.api.task_id or ""
-    team_files_dir = os.path.join(g.TEAMFILES_UPLOAD_DIR, f"{task_id}_{experiment_name}")
+    team_files_dir = "/" + os.path.join(g.TEAMFILES_UPLOAD_DIR, f"{task_id}_{experiment_name}")
     out_path = g.api.file.upload_directory(
         g.TEAM_ID,
         work_dir,
         team_files_dir,
         progress_size_cb=progress_cb,
     )
+    out_path = out_path.lstrip("/")
     return out_path
 
 
