@@ -117,7 +117,7 @@ def upload_artifacts(work_dir: str, experiment_name: str = None, progress_widget
         progress_cb = None
 
     task_id = g.api.task_id or ""
-    team_files_dir = os.path.join(g.TEAMFILES_UPLOAD_DIR, f"{task_id}_{experiment_name}")
+    team_files_dir = "/" + os.path.join(g.TEAMFILES_UPLOAD_DIR, f"{task_id}_{experiment_name}")
 
     print("---------------------------------------")
     print(f"TASK ID: {task_id}")
