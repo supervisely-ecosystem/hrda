@@ -15,3 +15,9 @@ RUN pip3 install setuptools==69.5.1
 RUN pip3 install supervisely==6.73.190
 
 RUN wget -O /root/mit_b5.pth https://deci-pretrained-models.s3.amazonaws.com/mit_backbones/mit_b5.pth # Link not safe
+
+RUN apt-get -y install curl
+RUN apt -y install wireguard iproute2
+RUN apt-get -y install nano
+
+LABEL "role"="development"
