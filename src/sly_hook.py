@@ -59,6 +59,11 @@ class SuperviselyHook(Hook):
                     for class_name, value in per_class_iou.items():
                         if class_name == "__bg__":
                             continue
+                        # Check if the value is NaN
+                        # sly.logger.debug(f"Per-class IoU: {class_name} = {value}")
+                        if not np.isfinite(value):
+                            sly.logger.warn(f"Per-class IoU for class '{class_name}' is not a finite number! Value will be set to '0.0000'.")
+                            value = 0.0000
                         train_ui.monitoring.add_scalar("val", "Per-class IoU", class_name, i, value)
             else:
                 sly.logger.warn("dataset.last_eval_results is None")
