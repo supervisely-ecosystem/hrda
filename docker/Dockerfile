@@ -12,6 +12,8 @@ RUN pip3 install kornia==0.5.8 Pillow==8.3.1 prettytable==2.1.0
 RUN pip3 install pyparsing==2.4.7 pytz==2020.1 PyYAML==5.4.1 yapf==0.31.0 # buildkit
 
 RUN pip3 install setuptools==69.5.1
-RUN pip3 install supervisely==6.73.190
+RUN pip3 install supervisely==6.73.203
 
 RUN wget -O /root/mit_b5.pth https://deci-pretrained-models.s3.amazonaws.com/mit_backbones/mit_b5.pth # Link not safe
+
+LABEL python_sdk_version=6.73.203
