@@ -13,8 +13,8 @@
 		"serve"
 	],
 	"description": "Deploy HRDA model for inference",
-	"docker_image": "supervisely/hrda:1.0.2",
-	"instance_version": "6.11.16",
+	"docker_image": "supervisely/hrda:1.0.3",
+	"instance_version": "6.11.19",
 	"task_location": "application_sessions",
 	"need_gpu": false,
 	"icon": "https://github.com/supervisely-ecosystem/hrda/assets/119248312/4adaa6ba-5f98-4f63-8fbf-26446bd3892f",
