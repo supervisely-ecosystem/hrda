@@ -1,2 +1,2 @@
 setuptools==69.5.1
-supervisely==6.73.186
+supervisely==6.73.203
