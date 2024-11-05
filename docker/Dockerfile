@@ -14,6 +14,6 @@ RUN pip3 install pyparsing==2.4.7 pytz==2020.1 PyYAML==5.4.1 yapf==0.31.0 # buil
 RUN pip3 install setuptools==69.5.1
 RUN pip3 install supervisely==6.73.203
 
-RUN wget -O /root/mit_b5.pth https://github.com/supervisely-ecosystem/hrda/releases/download/untagged-dd5f502c588dbc294acc/mit_b5.pth
+RUN wget -O /root/mit_b5.pth https://github.com/supervisely-ecosystem/hrda/releases/download/v1.0.15/mit_b5.pth
 
 LABEL python_sdk_version=6.73.203
