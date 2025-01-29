@@ -165,6 +165,14 @@ def main(args):
     model.CLASSES = datasets[0].CLASSES
     # passing checkpoint meta for saving best checkpoint
     meta.update(cfg.checkpoint_config.meta)
+    for ds in datasets:
+        if len(ds.target) == 0 or len(ds.source) == 0:
+            logger.error(
+                f"No images found in a training dataset. This may be due to dataset being empty, or error while loading images.",
+                extra={"dataset": ds},
+            )
+            raise RuntimeError("No images found in a training dataset.")
+
     train_segmentor(
         model,
         datasets,
