@@ -169,7 +169,7 @@ def main(args):
         if len(ds.target) == 0 or len(ds.source) == 0:
             logger.error(
                 f"No images found in a training dataset. This may be due to dataset being empty, or error while loading images.",
-                extra={"dataset": ds},
+                extra={"dataset": ds, "config": cfg.to_dict()},
             )
             raise RuntimeError("No images found in a training dataset.")
 
