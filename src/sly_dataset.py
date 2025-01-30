@@ -1,10 +1,36 @@
 import os
 import cv2
 import mmcv
+from shutil import rmtree
 from mmseg.datasets import CustomDataset, DATASETS
 import numpy as np
 import supervisely as sly
 from src import globals as g
+
+
+def collect_children_ds_ids(ds_tree, dataset_ids):
+    for dsinfo, children in ds_tree.items():
+        if dsinfo.id in dataset_ids:
+            for child in children:
+                dataset_ids.append(child.id)
+                if isinstance(child, dict):
+                    collect_children_ds_ids(child, dataset_ids)
+
+
+def extract_nested_datasets(directory):
+    for path in os.scandir(directory):
+        if not path.is_dir():
+            continue
+        nested_path = os.path.join(path, "datasets")
+        if os.path.exists(nested_path):  #  -> has nested datasets
+            for item in os.scandir(nested_path):  # each dataset
+                for folder in os.scandir(item):  # ann/img folders
+                    for subitem in os.scandir(folder):  # files
+                        os.rename(subitem.path, os.path.join(path.path, folder.name, subitem.name))
+                    os.rmdir(folder.path)  # remove empty ann/img folders
+                if item.name == "datasets":  # -> has extra nested dataset, repeat
+                    extract_nested_datasets(item.path)
+            rmtree(nested_path)  # remove dataset folder and its contents
 
 
 def download_datasets(project_id, dataset_ids=None):
@@ -12,9 +38,22 @@ def download_datasets(project_id, dataset_ids=None):
     if sly.fs.dir_exists(project_dir):
         sly.fs.remove_dir(project_dir)
     dataset_ids = list(set(dataset_ids))
+
+    selected_ds_cnt = len(dataset_ids)
+    ds_tree = g.api.dataset.get_tree(project_id)
+    nested_datasets = False
+    collect_children_ds_ids(ds_tree, dataset_ids)
+    if selected_ds_cnt != len(dataset_ids):
+        sly.logger.info("Found nested datasets. Downloading all nested datasets.")
+        nested_datasets = True
     # TODO: hardcoded progress_cb is bad here
     progress_cb = g.iter_progress(message="Downloading datasets...", total=g.state.n_images).update
     sly.Project.download(g.api, project_id, project_dir, dataset_ids, progress_cb=progress_cb)
+    if nested_datasets:
+        try:
+            extract_nested_datasets(project_dir)
+        except Exception as e:
+            raise RuntimeError("Failed to extract nested datasets") from e
     return project_dir
 
 
