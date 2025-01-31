@@ -67,6 +67,9 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
         res_ds_dir = os.path.join(project_fs.parent_dir, project_fs.name, ds.name.split("/")[0])
         os.makedirs(res_ds_dir, exist_ok=True)
         os.makedirs(os.path.join(res_ds_dir, ann_dir), exist_ok=True)
+        os.makedirs(os.path.join(res_ds_dir, "seg"), exist_ok=True)
+        os.makedirs(os.path.join(res_ds_dir, "img"), exist_ok=True)
+        os.makedirs(os.path.join(res_ds_dir, "ann"), exist_ok=True)
         existed_files = set(sly.fs.list_dir_recursively(os.path.join(res_ds_dir, ann_dir)))
         for item in ds.get_items_names():
             seg_ann_path = ds.get_seg_path(item)
