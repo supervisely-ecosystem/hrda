@@ -1,7 +1,8 @@
 import os
 import cv2
 import mmcv
-from shutil import rmtree
+
+from shutil import rmtree, move
 from mmseg.datasets import CustomDataset, DATASETS
 import numpy as np
 import supervisely as sly
@@ -63,18 +64,26 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
 
     for dataset in project_fs.datasets:
         dataset: sly.Dataset
-        res_ds_dir = os.path.join(
-            project_fs.parent_dir, project_fs.name, dataset.name.split("/")[0], ann_dir
-        )
+        res_ds_dir = os.path.join(project_fs.parent_dir, project_fs.name, dataset.name.split("/")[0])
         os.makedirs(res_ds_dir, exist_ok=True)
         existed_files = set(sly.fs.list_dir_recursively(res_ds_dir))
         for item in dataset.get_items_names():
-            ann_path = dataset.get_seg_path(item)
-            mask = cv2.cvtColor(cv2.imread(ann_path), cv2.COLOR_BGR2RGB)
+            seg_ann_path = dataset.get_seg_path(item)
+            mask = cv2.cvtColor(cv2.imread(seg_ann_path), cv2.COLOR_BGR2RGB)
             result = _convert_mask_values(mask, palette)
-            item_path = os.path.join(res_ds_dir, f"{dataset.short_name}_{item}.png")
+            item_name = f"{dataset.short_name}_{item}.png"
             item_path = sly.generate_free_name(existed_files, item_path, True, True)
+            item_path = os.path.join(res_ds_dir, ann_dir, item_name)
             cv2.imwrite(item_path, result)
+            img_path = dataset.get_img_path(item)
+            new_img_path = os.path.join(res_ds_dir, "img", item_name[:-4]) 
+            move(img_path, new_img_path)
+            ann_path = dataset.get_ann_path(item)
+            new_ann_path = os.path.join(res_ds_dir, "ann", item_name[:-4] + ".json")
+            move(ann_path, new_ann_path)
+            new_seg_ann_path = os.path.join(res_ds_dir, "seg", item_name)
+            move(seg_ann_path, new_seg_ann_path)
+
 
 
 def _convert_mask_values(mask: np.ndarray, palette: list):
@@ -105,8 +114,9 @@ class SuperviselyDataset(CustomDataset):
 
         self.last_eval_results = None
         self.last_model_outputs = None
-        self.project = sly.Project(g.PROJECT_DIR, sly.OpenMode.READ)
-        self.CLASSES, self.PALETTE = get_classes_and_palette(self.project.meta)
+        project_meta_json = sly.json.load_json_file(os.path.join(g.PROJECT_DIR, "meta.json"))
+        project_meta = sly.ProjectMeta.from_json(project_meta_json)
+        self.CLASSES, self.PALETTE = get_classes_and_palette(project_meta)
         self.pseudo_margins = None
         self.valid_mask_size = [512, 512]  # TODO: pseudo_margins is not used yet
 
