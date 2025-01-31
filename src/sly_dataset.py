@@ -1,7 +1,8 @@
 import os
 import cv2
 import mmcv
-from shutil import rmtree
+
+from shutil import rmtree, move
 from mmseg.datasets import CustomDataset, DATASETS
 import numpy as np
 import supervisely as sly
@@ -15,34 +16,6 @@ def collect_children_ds_ids(ds_tree, dataset_ids):
             collect_children_ds_ids(children, dataset_ids)
 
 
-def extract_nested_datasets(directory):
-    for path in os.scandir(directory):
-        if path.is_dir():
-            nested_path = (
-                os.path.join(path.path, "datasets") if path.name != "datasets" else path.path
-            )
-            if os.path.exists(nested_path):
-                for ds in os.scandir(nested_path):
-                    for folder in os.scandir(ds):
-                        if folder.name in ["ann", "img"]:
-                            for f in os.scandir(folder):
-                                if f.is_file():
-                                    os.rename(
-                                        f.path,
-                                        os.path.join(
-                                            *(path.path.split("/")[:3]),
-                                            folder.name,
-                                            f.name,
-                                        ),
-                                    )
-                            os.rmdir(folder.path)
-                        else:
-                            extract_nested_datasets(ds.path)
-                rmtree(nested_path)
-            else:
-                extract_nested_datasets(path.path)
-
-
 def download_datasets(project_id, dataset_ids=None):
     project_dir = g.PROJECT_DIR
     if sly.fs.dir_exists(project_dir):
@@ -51,19 +24,13 @@ def download_datasets(project_id, dataset_ids=None):
 
     selected_ds_cnt = len(dataset_ids)
     ds_tree = g.api.dataset.get_tree(project_id)
-    nested_datasets = False
     collect_children_ds_ids(ds_tree, dataset_ids)
-    if selected_ds_cnt != len(dataset_ids):
+    nested_datasets = selected_ds_cnt != len(dataset_ids)
+    if nested_datasets:
         sly.logger.info("Found nested datasets. Downloading all nested datasets.")
-        nested_datasets = True
     # TODO: hardcoded progress_cb is bad here
     progress_cb = g.iter_progress(message="Downloading datasets...", total=g.state.n_images).update
     sly.Project.download(g.api, project_id, project_dir, dataset_ids, progress_cb=progress_cb)
-    if nested_datasets:
-        try:
-            extract_nested_datasets(project_dir)
-        except Exception as e:
-            raise RuntimeError("Failed to extract nested datasets") from e
     return project_dir
 
 
@@ -72,12 +39,13 @@ def prepare_datasets(selected_classes: list):
     progress_cb = g.iter_progress(
         message="Converting annotations...", total=g.state.n_images
     ).update
-    if sly.fs.dir_exists(g.PROJECT_SEG_DIR):
-        sly.fs.remove_dir(g.PROJECT_SEG_DIR)
     sly.Project.to_segmentation_task(
-        g.PROJECT_DIR, g.PROJECT_SEG_DIR, target_classes=selected_classes.copy(), progress_cb=progress_cb
+        g.PROJECT_DIR,
+        inplace=True,
+        target_classes=selected_classes.copy(),
+        progress_cb=progress_cb,
     )
-    project = sly.Project(g.PROJECT_SEG_DIR, sly.OpenMode.READ)
+    project = sly.Project(g.PROJECT_DIR, sly.OpenMode.READ)
     convert_project_masks(project, ann_dir=g.ANN_DIR)
 
 
@@ -93,16 +61,27 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
     # convert human masks to machine masks
 
     class_names, palette = get_classes_and_palette(project_fs.meta)
-    datasets = project_fs.datasets
 
-    for dataset in datasets:
-        dataset: sly.Dataset
-        os.makedirs(f"{dataset.directory}/{ann_dir}", exist_ok=False)
-        for item in dataset.get_items_names():
-            ann_path = dataset.get_seg_path(item)
-            mask = cv2.cvtColor(cv2.imread(ann_path), cv2.COLOR_BGR2RGB)
+    for ds in project_fs.datasets:
+        ds: sly.Dataset
+        res_ds_dir = os.path.join(project_fs.parent_dir, project_fs.name, ds.name.split("/")[0])
+        os.makedirs(res_ds_dir, exist_ok=True)
+        os.makedirs(os.path.join(res_ds_dir, ann_dir), exist_ok=True)
+        os.makedirs(os.path.join(res_ds_dir, "seg"), exist_ok=True)
+        os.makedirs(os.path.join(res_ds_dir, "img"), exist_ok=True)
+        os.makedirs(os.path.join(res_ds_dir, "ann"), exist_ok=True)
+        existed_files = set(sly.fs.list_dir_recursively(os.path.join(res_ds_dir, ann_dir)))
+        for item in ds.get_items_names():
+            seg_ann_path = ds.get_seg_path(item)
+            mask = cv2.cvtColor(cv2.imread(seg_ann_path), cv2.COLOR_BGR2RGB)
             result = _convert_mask_values(mask, palette)
-            cv2.imwrite(f"{dataset.directory}/{ann_dir}/{item}.png", result)
+            name = sly.generate_free_name(existed_files, f"{ds.short_name}_{item}.png", True, True)
+            item_path = os.path.join(res_ds_dir, ann_dir, name)
+            cv2.imwrite(item_path, result)
+            move(ds.get_img_path(item), os.path.join(res_ds_dir, "img", name[:-4]))
+            move(ds.get_ann_path(item), os.path.join(res_ds_dir, "ann", name[:-4] + ".json"))
+            move(seg_ann_path, os.path.join(res_ds_dir, "seg", name))
+    sly.logger.info("project masks converted")
 
 
 def _convert_mask_values(mask: np.ndarray, palette: list):
@@ -127,14 +106,15 @@ class SuperviselyDataset(CustomDataset):
             img_dir=g.IMG_DIR,
             ann_dir=g.ANN_DIR,
             seg_map_suffix=".png",
-            data_root=g.PROJECT_SEG_DIR + "/" + dataset_name,
+            data_root=g.PROJECT_DIR + "/" + dataset_name,
             test_mode=test_mode,
         )
 
         self.last_eval_results = None
         self.last_model_outputs = None
-        self.project = sly.Project(g.PROJECT_SEG_DIR, sly.OpenMode.READ)
-        self.CLASSES, self.PALETTE = get_classes_and_palette(self.project.meta)
+        project_meta_json = sly.json.load_json_file(os.path.join(g.PROJECT_DIR, "meta.json"))
+        project_meta = sly.ProjectMeta.from_json(project_meta_json)
+        self.CLASSES, self.PALETTE = get_classes_and_palette(project_meta)
         self.pseudo_margins = None
         self.valid_mask_size = [512, 512]  # TODO: pseudo_margins is not used yet
 
