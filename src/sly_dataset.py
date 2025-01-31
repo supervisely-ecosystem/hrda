@@ -66,7 +66,8 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
         ds: sly.Dataset
         res_ds_dir = os.path.join(project_fs.parent_dir, project_fs.name, ds.name.split("/")[0])
         os.makedirs(res_ds_dir, exist_ok=True)
-        existed_files = set(sly.fs.list_dir_recursively(res_ds_dir))
+        os.makedirs(os.path.join(res_ds_dir, ann_dir), exist_ok=True)
+        existed_files = set(sly.fs.list_dir_recursively(os.path.join(res_ds_dir, ann_dir)))
         for item in ds.get_items_names():
             seg_ann_path = ds.get_seg_path(item)
             mask = cv2.cvtColor(cv2.imread(seg_ann_path), cv2.COLOR_BGR2RGB)
@@ -77,6 +78,7 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
             move(ds.get_img_path(item), os.path.join(res_ds_dir, "img", name[:-4]))
             move(ds.get_ann_path(item), os.path.join(res_ds_dir, "ann", name[:-4] + ".json"))
             move(seg_ann_path, os.path.join(res_ds_dir, "seg", name))
+    sly.logger.info("project masks converted")
 
 
 def _convert_mask_values(mask: np.ndarray, palette: list):
