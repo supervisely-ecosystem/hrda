@@ -24,7 +24,7 @@ IMAGES_COUNT = _project_info.items_count
 PROJECT_NAME = _project_info.name
 
 LOG_INTERVAL = 1 if sly.is_development() else 50
-PRETRAINED_PATH = "/root/mit_b5.pth"
+PRETRAINED_PATH = "/home/ger/workapps/hrda/mit_b5.pth"
 PROJECT_DIR = app_dir + "/sly_project"
 PROJECT_SEG_DIR = app_dir + "/sly_project_seg"
 IMG_DIR = "img"

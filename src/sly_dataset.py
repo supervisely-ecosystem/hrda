@@ -10,27 +10,37 @@ from src import globals as g
 
 def collect_children_ds_ids(ds_tree, dataset_ids):
     for dsinfo, children in ds_tree.items():
-        if dsinfo.id in dataset_ids:
-            for child in children:
-                dataset_ids.append(child.id)
-                if isinstance(child, dict):
-                    collect_children_ds_ids(child, dataset_ids)
+        if dsinfo.id in dataset_ids and children:
+            dataset_ids.extend([info.id for info in children])
+            collect_children_ds_ids(children, dataset_ids)
 
 
 def extract_nested_datasets(directory):
     for path in os.scandir(directory):
-        if not path.is_dir():
-            continue
-        nested_path = os.path.join(path, "datasets")
-        if os.path.exists(nested_path):  #  -> has nested datasets
-            for item in os.scandir(nested_path):  # each dataset
-                for folder in os.scandir(item):  # ann/img folders
-                    for subitem in os.scandir(folder):  # files
-                        os.rename(subitem.path, os.path.join(path.path, folder.name, subitem.name))
-                    os.rmdir(folder.path)  # remove empty ann/img folders
-                if item.name == "datasets":  # -> has extra nested dataset, repeat
-                    extract_nested_datasets(item.path)
-            rmtree(nested_path)  # remove dataset folder and its contents
+        if path.is_dir():
+            nested_path = (
+                os.path.join(path.path, "datasets") if path.name != "datasets" else path.path
+            )
+            if os.path.exists(nested_path):
+                for ds in os.scandir(nested_path):
+                    for folder in os.scandir(ds):
+                        if folder.name in ["ann", "img"]:
+                            for f in os.scandir(folder):
+                                if f.is_file():
+                                    os.rename(
+                                        f.path,
+                                        os.path.join(
+                                            *(path.path.split("/")[:3]),
+                                            folder.name,
+                                            f.name,
+                                        ),
+                                    )
+                            os.rmdir(folder.path)
+                        else:
+                            extract_nested_datasets(ds.path)
+                rmtree(nested_path)
+            else:
+                extract_nested_datasets(path.path)
 
 
 def download_datasets(project_id, dataset_ids=None):
