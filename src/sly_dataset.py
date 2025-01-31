@@ -15,34 +15,6 @@ def collect_children_ds_ids(ds_tree, dataset_ids):
             collect_children_ds_ids(children, dataset_ids)
 
 
-def extract_nested_datasets(directory):
-    for path in os.scandir(directory):
-        if path.is_dir():
-            nested_path = (
-                os.path.join(path.path, "datasets") if path.name != "datasets" else path.path
-            )
-            if os.path.exists(nested_path):
-                for ds in os.scandir(nested_path):
-                    for folder in os.scandir(ds):
-                        if folder.name in ["ann", "img"]:
-                            for f in os.scandir(folder):
-                                if f.is_file():
-                                    os.rename(
-                                        f.path,
-                                        os.path.join(
-                                            *(path.path.split("/")[:3]),
-                                            folder.name,
-                                            f.name,
-                                        ),
-                                    )
-                            os.rmdir(folder.path)
-                        else:
-                            extract_nested_datasets(ds.path)
-                rmtree(nested_path)
-            else:
-                extract_nested_datasets(path.path)
-
-
 def download_datasets(project_id, dataset_ids=None):
     project_dir = g.PROJECT_DIR
     if sly.fs.dir_exists(project_dir):
@@ -51,19 +23,13 @@ def download_datasets(project_id, dataset_ids=None):
 
     selected_ds_cnt = len(dataset_ids)
     ds_tree = g.api.dataset.get_tree(project_id)
-    nested_datasets = False
     collect_children_ds_ids(ds_tree, dataset_ids)
-    if selected_ds_cnt != len(dataset_ids):
+    nested_datasets = selected_ds_cnt != len(dataset_ids)
+    if nested_datasets:
         sly.logger.info("Found nested datasets. Downloading all nested datasets.")
-        nested_datasets = True
     # TODO: hardcoded progress_cb is bad here
     progress_cb = g.iter_progress(message="Downloading datasets...", total=g.state.n_images).update
     sly.Project.download(g.api, project_id, project_dir, dataset_ids, progress_cb=progress_cb)
-    if nested_datasets:
-        try:
-            extract_nested_datasets(project_dir)
-        except Exception as e:
-            raise RuntimeError("Failed to extract nested datasets") from e
     return project_dir
 
 
@@ -72,12 +38,13 @@ def prepare_datasets(selected_classes: list):
     progress_cb = g.iter_progress(
         message="Converting annotations...", total=g.state.n_images
     ).update
-    if sly.fs.dir_exists(g.PROJECT_SEG_DIR):
-        sly.fs.remove_dir(g.PROJECT_SEG_DIR)
     sly.Project.to_segmentation_task(
-        g.PROJECT_DIR, g.PROJECT_SEG_DIR, target_classes=selected_classes.copy(), progress_cb=progress_cb
+        g.PROJECT_DIR,
+        inplace=True,
+        target_classes=selected_classes.copy(),
+        progress_cb=progress_cb,
     )
-    project = sly.Project(g.PROJECT_SEG_DIR, sly.OpenMode.READ)
+    project = sly.Project(g.PROJECT_DIR, sly.OpenMode.READ)
     convert_project_masks(project, ann_dir=g.ANN_DIR)
 
 
@@ -93,16 +60,21 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
     # convert human masks to machine masks
 
     class_names, palette = get_classes_and_palette(project_fs.meta)
-    datasets = project_fs.datasets
 
-    for dataset in datasets:
+    for dataset in project_fs.datasets:
         dataset: sly.Dataset
-        os.makedirs(f"{dataset.directory}/{ann_dir}", exist_ok=False)
+        res_ds_dir = os.path.join(
+            project_fs.parent_dir, project_fs.name, dataset.name.split("/")[0], ann_dir
+        )
+        os.makedirs(res_ds_dir, exist_ok=True)
+        existed_files = set(sly.fs.list_dir_recursively(res_ds_dir))
         for item in dataset.get_items_names():
             ann_path = dataset.get_seg_path(item)
             mask = cv2.cvtColor(cv2.imread(ann_path), cv2.COLOR_BGR2RGB)
             result = _convert_mask_values(mask, palette)
-            cv2.imwrite(f"{dataset.directory}/{ann_dir}/{item}.png", result)
+            item_path = os.path.join(res_ds_dir, f"{dataset.short_name}_{item}.png")
+            item_path = sly.generate_free_name(existed_files, item_path, True, True)
+            cv2.imwrite(item_path, result)
 
 
 def _convert_mask_values(mask: np.ndarray, palette: list):
@@ -127,13 +99,13 @@ class SuperviselyDataset(CustomDataset):
             img_dir=g.IMG_DIR,
             ann_dir=g.ANN_DIR,
             seg_map_suffix=".png",
-            data_root=g.PROJECT_SEG_DIR + "/" + dataset_name,
+            data_root=g.PROJECT_DIR + "/" + dataset_name,
             test_mode=test_mode,
         )
 
         self.last_eval_results = None
         self.last_model_outputs = None
-        self.project = sly.Project(g.PROJECT_SEG_DIR, sly.OpenMode.READ)
+        self.project = sly.Project(g.PROJECT_DIR, sly.OpenMode.READ)
         self.CLASSES, self.PALETTE = get_classes_and_palette(self.project.meta)
         self.pseudo_margins = None
         self.valid_mask_size = [512, 512]  # TODO: pseudo_margins is not used yet
