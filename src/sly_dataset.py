@@ -62,28 +62,21 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
 
     class_names, palette = get_classes_and_palette(project_fs.meta)
 
-    for dataset in project_fs.datasets:
-        dataset: sly.Dataset
-        res_ds_dir = os.path.join(project_fs.parent_dir, project_fs.name, dataset.name.split("/")[0])
+    for ds in project_fs.datasets:
+        ds: sly.Dataset
+        res_ds_dir = os.path.join(project_fs.parent_dir, project_fs.name, ds.name.split("/")[0])
         os.makedirs(res_ds_dir, exist_ok=True)
         existed_files = set(sly.fs.list_dir_recursively(res_ds_dir))
-        for item in dataset.get_items_names():
-            seg_ann_path = dataset.get_seg_path(item)
+        for item in ds.get_items_names():
+            seg_ann_path = ds.get_seg_path(item)
             mask = cv2.cvtColor(cv2.imread(seg_ann_path), cv2.COLOR_BGR2RGB)
             result = _convert_mask_values(mask, palette)
-            item_name = f"{dataset.short_name}_{item}.png"
-            item_path = sly.generate_free_name(existed_files, item_path, True, True)
-            item_path = os.path.join(res_ds_dir, ann_dir, item_name)
+            name = sly.generate_free_name(existed_files, f"{ds.short_name}_{item}.png", True, True)
+            item_path = os.path.join(res_ds_dir, ann_dir, name)
             cv2.imwrite(item_path, result)
-            img_path = dataset.get_img_path(item)
-            new_img_path = os.path.join(res_ds_dir, "img", item_name[:-4]) 
-            move(img_path, new_img_path)
-            ann_path = dataset.get_ann_path(item)
-            new_ann_path = os.path.join(res_ds_dir, "ann", item_name[:-4] + ".json")
-            move(ann_path, new_ann_path)
-            new_seg_ann_path = os.path.join(res_ds_dir, "seg", item_name)
-            move(seg_ann_path, new_seg_ann_path)
-
+            move(ds.get_img_path(item), os.path.join(res_ds_dir, "img", name[:-4]))
+            move(ds.get_ann_path(item), os.path.join(res_ds_dir, "ann", name[:-4] + ".json"))
+            move(seg_ann_path, os.path.join(res_ds_dir, "seg", name))
 
 
 def _convert_mask_values(mask: np.ndarray, palette: list):
