@@ -12,9 +12,9 @@ RUN pip3 install kornia==0.5.8 Pillow==8.3.1 prettytable==2.1.0
 RUN pip3 install pyparsing==2.4.7 pytz==2020.1 PyYAML==5.4.1 yapf==0.31.0 # buildkit
 
 RUN pip3 install setuptools==69.5.1
-RUN pip3 install supervisely==6.73.190
+RUN pip3 install supervisely==6.73.292
 
-RUN wget -O /root/mit_b5.pth https://deci-pretrained-models.s3.amazonaws.com/mit_backbones/mit_b5.pth # Link not safe
+RUN wget -O /root/mit_b5.pth https://github.com/supervisely-ecosystem/hrda/releases/download/v1.0.15/mit_b5.pth
 
 RUN apt-get -y install curl
 RUN apt -y install wireguard iproute2
