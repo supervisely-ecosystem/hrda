@@ -83,7 +83,7 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
             img_source = ds.get_img_path(item)
             _, ext = os.path.splitext(img_source)
             img_dest_dir = os.path.join(res_ds_dir, "img")
-            if ext.lower() == ".webp":
+            if ext.lower() not in [".png", ".jpeg", ".jpg"]:
                 img = cv2.imread(img_source)
                 new_img_name = name[:-4] + ".jpg"
                 cv2.imwrite(os.path.join(img_dest_dir, new_img_name), img)
