@@ -61,7 +61,7 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
     # convert human masks to machine masks
 
     class_names, palette = get_classes_and_palette(project_fs.meta)
-
+    converted_images = {}
     for ds in project_fs.datasets:
         ds: sly.Dataset
         res_ds_dir = os.path.join(project_fs.parent_dir, project_fs.name, ds.name.split("/")[0])
@@ -76,22 +76,33 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
             mask = cv2.cvtColor(cv2.imread(seg_ann_path), cv2.COLOR_BGR2RGB)
             result = _convert_mask_values(mask, palette)
             name = sly.generate_free_name(existed_files, f"{ds.short_name}_{item}.png", True, True)
-            ann_out_path = os.path.join(res_ds_dir, ann_dir, name)
-            cv2.imwrite(ann_out_path, result)
 
-            # Convert image: if it's a .webp file, convert to jpg.
+            # Convert image: if it's a not a png, jpeg or jpg file, convert to jpg.
             img_source = ds.get_img_path(item)
             _, ext = os.path.splitext(img_source)
             img_dest_dir = os.path.join(res_ds_dir, "img")
             if ext.lower() not in [".png", ".jpeg", ".jpg"]:
                 img = cv2.imread(img_source)
-                new_img_name = name[:-4] + ".jpg"
-                cv2.imwrite(os.path.join(img_dest_dir, new_img_name), img)
+                conv_name = name[:-4] + ".jpg"
+                cv2.imwrite(os.path.join(img_dest_dir, conv_name), img)
+                converted_images[os.path.basename(img_source)] = conv_name
+                name = conv_name + ".png"
             else:
                 move(img_source, os.path.join(img_dest_dir, name[:-4]))
 
+            ann_out_path = os.path.join(res_ds_dir, ann_dir, name)
+            cv2.imwrite(ann_out_path, result)
+
             move(ds.get_ann_path(item), os.path.join(res_ds_dir, "ann", name[:-4] + ".json"))
             move(seg_ann_path, os.path.join(res_ds_dir, "seg", name))
+
+    if len(converted_images) > 0:
+        unsupported_exts = [os.path.splitext(k)[1] for k in converted_images.keys()]
+        sly.logger.info(
+            "Found unsupported image extensions: "
+            + ", converted to jpg:".join(set(unsupported_exts)),
+            extra=converted_images,
+        )
     sly.logger.info("project masks converted")
 
 
