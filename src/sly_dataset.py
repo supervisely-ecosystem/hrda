@@ -76,9 +76,20 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
             mask = cv2.cvtColor(cv2.imread(seg_ann_path), cv2.COLOR_BGR2RGB)
             result = _convert_mask_values(mask, palette)
             name = sly.generate_free_name(existed_files, f"{ds.short_name}_{item}.png", True, True)
-            item_path = os.path.join(res_ds_dir, ann_dir, name)
-            cv2.imwrite(item_path, result)
-            move(ds.get_img_path(item), os.path.join(res_ds_dir, "img", name[:-4]))
+            ann_out_path = os.path.join(res_ds_dir, ann_dir, name)
+            cv2.imwrite(ann_out_path, result)
+
+            # Convert image: if it's a .webp file, convert to jpg.
+            img_source = ds.get_img_path(item)
+            _, ext = os.path.splitext(img_source)
+            img_dest_dir = os.path.join(res_ds_dir, "img")
+            if ext.lower() == ".webp":
+                img = cv2.imread(img_source)
+                new_img_name = name[:-4] + ".jpg"
+                cv2.imwrite(os.path.join(img_dest_dir, new_img_name), img)
+            else:
+                move(img_source, os.path.join(img_dest_dir, name[:-4]))
+
             move(ds.get_ann_path(item), os.path.join(res_ds_dir, "ann", name[:-4] + ".json"))
             move(seg_ann_path, os.path.join(res_ds_dir, "seg", name))
     sly.logger.info("project masks converted")
