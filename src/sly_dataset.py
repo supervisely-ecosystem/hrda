@@ -61,7 +61,7 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
     # convert human masks to machine masks
 
     class_names, palette = get_classes_and_palette(project_fs.meta)
-    converted_images = {}
+    unsupported_exts = []
     for ds in project_fs.datasets:
         ds: sly.Dataset
         res_ds_dir = os.path.join(project_fs.parent_dir, project_fs.name, ds.name.split("/")[0])
@@ -82,11 +82,16 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
             _, ext = os.path.splitext(img_source)
             img_dest_dir = os.path.join(res_ds_dir, "img")
             if ext.lower() not in [".png", ".jpeg", ".jpg"]:
-                img = cv2.imread(img_source)
-                conv_name = name[:-4] + ".jpg"
-                cv2.imwrite(os.path.join(img_dest_dir, conv_name), img)
-                converted_images[os.path.basename(img_source)] = conv_name
-                name = conv_name + ".png"
+                try:
+                    img = cv2.imread(img_source)
+                    conv_name = name[:-4] + ".jpg"
+                    cv2.imwrite(os.path.join(img_dest_dir, conv_name), img)
+                    os.remove(img_source)
+                    unsupported_exts.append(ext.lower())
+                    name = conv_name + ".png"
+                except:
+                    sly.logger.warn(f"Failed to convert image: {img_source}")
+                    continue
             else:
                 move(img_source, os.path.join(img_dest_dir, name[:-4]))
 
@@ -96,12 +101,10 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
             move(ds.get_ann_path(item), os.path.join(res_ds_dir, "ann", name[:-4] + ".json"))
             move(seg_ann_path, os.path.join(res_ds_dir, "seg", name))
 
-    if len(converted_images) > 0:
-        unsupported_exts = [os.path.splitext(k)[1] for k in converted_images.keys()]
+    if len(unsupported_exts) > 0:
         sly.logger.info(
-            "Found and converted unsupported image extensions: "
+            "Converted {} images with unsupported extensions: ".format(len(unsupported_exts))
             + ", ".join(f'"{ext}"' for ext in set(unsupported_exts)),
-            extra=converted_images,
         )
     sly.logger.info("project masks converted")
 
