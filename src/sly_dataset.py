@@ -99,7 +99,8 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
     if len(converted_images) > 0:
         unsupported_exts = [os.path.splitext(k)[1] for k in converted_images.keys()]
         sly.logger.info(
-            "Found unsupported image extensions: " + ", ".join(set(unsupported_exts)),
+            "Found and converted unsupported image extensions: "
+            + ", ".join(f'"{ext}"' for ext in set(unsupported_exts)),
             extra=converted_images,
         )
     sly.logger.info("project masks converted")
