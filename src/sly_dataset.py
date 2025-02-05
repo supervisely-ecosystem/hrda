@@ -79,14 +79,14 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
 
             # Convert image: if it's a not a png, jpeg or jpg file, convert to jpg.
             img_source = ds.get_img_path(item)
-            _, ext = os.path.splitext(img_source)
+            ext = sly.fs.get_file_ext(img_source)
             img_dest_dir = os.path.join(res_ds_dir, "img")
             if ext.lower() not in [".png", ".jpeg", ".jpg"]:
                 try:
                     img = cv2.imread(img_source)
                     conv_name = name[:-4] + ".jpg"
                     cv2.imwrite(os.path.join(img_dest_dir, conv_name), img)
-                    os.remove(img_source)
+                    sly.fs.silent_remove(img_source)
                     unsupported_exts.append(ext.lower())
                     name = conv_name + ".png"
                 except:
