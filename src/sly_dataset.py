@@ -7,7 +7,7 @@ from mmseg.datasets import CustomDataset, DATASETS
 import numpy as np
 import supervisely as sly
 from src import globals as g
-
+import time
 
 def collect_children_ds_ids(ds_tree, dataset_ids):
     for dsinfo, children in ds_tree.items():
@@ -46,7 +46,8 @@ def prepare_datasets(selected_classes: list):
         progress_cb=progress_cb,
     )
     project = sly.Project(g.PROJECT_DIR, sly.OpenMode.READ)
-    convert_project_masks(project, ann_dir=g.ANN_DIR)
+    progress_cb = g.iter_progress(message="Converting masks...", total=g.state.n_images).update
+    convert_project_masks(project, ann_dir=g.ANN_DIR, progress_cb=progress_cb)
 
 
 def get_classes_and_palette(project_meta: sly.ProjectMeta):
@@ -57,12 +58,19 @@ def get_classes_and_palette(project_meta: sly.ProjectMeta):
     return class_names, palette
 
 
-def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
-    # convert human masks to machine masks
-
+def convert_project_masks(project_fs: sly.Project, ann_dir="seg2", progress_cb=None):
     class_names, palette = get_classes_and_palette(project_fs.meta)
+
+    # * Create LUT for mask conversion
+    palette_arr = np.array(palette, dtype=np.uint32)
+    lut = np.zeros(1 << 24, dtype=np.uint8)
+    palette_hashes = palette_arr[:, 0] + (palette_arr[:, 1] << 8) + (palette_arr[:, 2] << 16)
+    for label_idx, hash_val in enumerate(palette_hashes):
+        lut[hash_val] = label_idx
+
     unsupported_exts = []
     for ds in project_fs.datasets:
+        t = time.time()
         ds: sly.Dataset
         res_ds_dir = os.path.join(project_fs.parent_dir, project_fs.name, ds.name.split("/")[0])
         os.makedirs(res_ds_dir, exist_ok=True)
@@ -72,52 +80,70 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2"):
         os.makedirs(os.path.join(res_ds_dir, "ann"), exist_ok=True)
         existed_files = set(sly.fs.list_dir_recursively(os.path.join(res_ds_dir, ann_dir)))
         for item in ds.get_items_names():
-            seg_ann_path = ds.get_seg_path(item)
-            mask = cv2.cvtColor(cv2.imread(seg_ann_path), cv2.COLOR_BGR2RGB)
-            result = _convert_mask_values(mask, palette)
-            name = sly.generate_free_name(existed_files, f"{ds.short_name}_{item}.png", True, True)
+            name = sly.generate_free_name(existed_files, f"{ds.short_name}_{item}", True, True)
 
-            # Convert image: if it's a not a png, jpeg or jpg file, convert to jpg.
+            # * Move/rename image
             img_source = ds.get_img_path(item)
             ext = sly.fs.get_file_ext(img_source)
             img_dest_dir = os.path.join(res_ds_dir, "img")
             if ext.lower() not in [".png", ".jpeg", ".jpg"]:
+                # * Convert image to jpg if it has unsupported extension
                 try:
                     img = cv2.imread(img_source)
-                    conv_name = name[:-4] + ".jpg"
-                    cv2.imwrite(os.path.join(img_dest_dir, conv_name), img)
-                    sly.fs.silent_remove(img_source)
+                    name = name + ".jpg"
+                    cv2.imwrite(os.path.join(img_dest_dir, name), img)
                     unsupported_exts.append(ext.lower())
-                    name = conv_name + ".png"
                 except:
                     sly.logger.warn(f"Failed to convert image: {img_source}")
                     continue
             else:
-                move(img_source, os.path.join(img_dest_dir, name[:-4]))
+                move(img_source, os.path.join(img_dest_dir, name))
+            sly.fs.silent_remove(img_source)
 
-            ann_out_path = os.path.join(res_ds_dir, ann_dir, name)
+            # * Generate machine mask
+            mask_name = name + ".png"
+            seg_ann_path = ds.get_seg_path(item)
+            mask_bgr = cv2.imread(seg_ann_path)
+            mask_rgb = cv2.cvtColor(mask_bgr, cv2.COLOR_BGR2RGB)
+
+            pixel_hashes = (
+                mask_rgb[:, :, 0].astype(np.uint32)
+                + (mask_rgb[:, :, 1].astype(np.uint32) << 8)
+                + (mask_rgb[:, :, 2].astype(np.uint32) << 16)
+            )
+            result = lut[pixel_hashes]
+            ann_out_path = os.path.join(res_ds_dir, ann_dir, mask_name)
             cv2.imwrite(ann_out_path, result)
 
-            move(ds.get_ann_path(item), os.path.join(res_ds_dir, "ann", name[:-4] + ".json"))
-            move(seg_ann_path, os.path.join(res_ds_dir, "seg", name))
+            # * Move/rename annotations
+            source_ann_path = ds.get_ann_path(item)
+            move(source_ann_path, os.path.join(res_ds_dir, "ann", name + ".json"))
+            sly.fs.silent_remove(source_ann_path)
+            move(seg_ann_path, os.path.join(res_ds_dir, "seg", mask_name))
+            sly.fs.silent_remove(seg_ann_path)
+
+            if progress_cb is not None:
+                progress_cb(1)
+        sly.logger.info(f"Conversion of dataset {ds.name} took {time.time() - t:.2f} seconds")
 
     if len(unsupported_exts) > 0:
         sly.logger.info(
             "Converted {} images with unsupported extensions: ".format(len(unsupported_exts))
             + ", ".join(f'"{ext}"' for ext in set(unsupported_exts)),
         )
-    sly.logger.info("project masks converted")
 
 
-def _convert_mask_values(mask: np.ndarray, palette: list):
-    result = np.zeros((mask.shape[0], mask.shape[1]), dtype=np.int32)
-    for label_idx, color in enumerate(palette):
-        if label_idx == 0:
-            # skip background
-            continue
-        colormap = np.where(np.all(mask == color, axis=-1))
-        result[colormap] = label_idx
-    return result
+# def _convert_mask_values(mask: np.ndarray, palette: list):
+#     result = np.zeros((mask.shape[0], mask.shape[1]), dtype=np.int32)
+#     if mask.max() == 0:
+#         return result
+#     for label_idx, color in enumerate(palette):
+#         if label_idx == 0:
+#             # skip background
+#             continue
+#         colormap = np.where(np.all(mask == np.array(color, dtype=mask.dtype), axis=-1))
+#         result[colormap] = label_idx
+#     return result
 
 
 @DATASETS.register_module()
