@@ -13,8 +13,8 @@
 		"train"
 	],
 	"description": "Train HRDA model for segmentation in semi-supervised mode",
-	"docker_image": "supervisely/hrda:1.0.6",
-	"instance_version": "6.12.28",
+	"docker_image": "supervisely/hrda:1.0.5",
+	"instance_version": "6.12.5",
 	"task_location": "workspace_tasks",
 	"need_gpu": false,
 	"icon": "https://github.com/supervisely-ecosystem/hrda/assets/119248312/5ecc2699-cfc9-49af-8716-8197c87a1d5a",
