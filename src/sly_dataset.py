@@ -80,7 +80,10 @@ def convert_project_masks(project_fs: sly.Project, ann_dir="seg2", progress_cb=N
         os.makedirs(os.path.join(res_ds_dir, "ann"), exist_ok=True)
         existed_files = set(sly.fs.list_dir_recursively(os.path.join(res_ds_dir, ann_dir)))
         for item in ds.get_items_names():
-            name = sly.generate_free_name(existed_files, f"{ds.short_name}_{item}", True, True)
+            item_name_normalized = sly.fs.get_file_name(item) + sly.fs.get_file_ext(item).lower()
+            name = sly.generate_free_name(
+                existed_files, f"{ds.short_name}_{item_name_normalized}", True, True
+            )
 
             # * Move/rename image
             img_source = ds.get_img_path(item)
