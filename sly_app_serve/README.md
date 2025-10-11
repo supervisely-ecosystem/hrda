@@ -11,7 +11,7 @@
   <a href="#Acknowledgment">Acknowledgment</a>
 </p>
 
-[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](../../../../../supervisely-ecosystem/hrda/sly_app_serve)
+[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](https://ecosystem.supervisely.com/apps/supervisely-ecosystem/hrda/sly_app_serve)
 [![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervisely.com/slack)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/supervisely-ecosystem/hrda)
 [![views](https://app.supervisely.com/img/badges/views/supervisely-ecosystem/hrda/sly_app_serve.png)](https://supervisely.com)
@@ -34,7 +34,7 @@ HRDA model is not a usual segmentation model. It is useful in cases where your t
 ### Custom models
 
 This model does not come with pre-trained models option. To create a custom model, use the application below:
-- [Train HRDA](../../../../../supervisely-ecosystem/hrda/sly_app_train) - app allows to create custom HRDA weights through training process.
+- [Train HRDA](https://ecosystem.supervisely.com/apps/supervisely-ecosystem/hrda/sly_app_train) - app allows to create custom HRDA weights through training process.
     <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_train" src="https://github.com/supervisely-ecosystem/hrda/assets/119248312/79e995cf-8fae-4fd6-ab42-39d17b7da5b7" height="70px" margin-bottom="20px"/>
 
 To serve the custom model, copy model file path from Team Files, paste it into the dedicated field, select the device and press `Serve` button
@@ -55,7 +55,7 @@ You can use your trained models outside Supervisely platform without any depende
 - [Apply NN to Videos Project](../../../../supervisely-ecosystem/apply-nn-to-videos-project) - app allows to label your videos using served Supervisely models.  
   <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/apply-nn-to-videos-project" src="https://imgur.com/LDo8K1A.png" height="70px" margin-bottom="20px" />
 
-- [Train HRDA](../../../../../supervisely-ecosystem/hrda/sly_app_train) - app allows to create custom HRDA weights through training process.
+- [Train HRDA](https://ecosystem.supervisely.com/apps/supervisely-ecosystem/hrda/sly_app_train) - app allows to create custom HRDA weights through training process.
     <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_train" src="https://github.com/supervisely-ecosystem/hrda/assets/119248312/79e995cf-8fae-4fd6-ab42-39d17b7da5b7" height="70px" margin-bottom="20px"/>
     
 # Acknowledgment
