@@ -13,7 +13,7 @@
   <a href="#Acknowledgment">Acknowledgment</a>
 </p>
 
-[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](../../../../../supervisely-ecosystem/hrda/sly_app_train)
+[![](https://img.shields.io/badge/supervisely-ecosystem-brightgreen)](https://ecosystem.supervisely.com/apps/supervisely-ecosystem/hrda/sly_app_train)
 [![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervisely.com/slack)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/supervisely-ecosystem/hrda)
 [![views](https://app.supervisely.com/img/badges/views/supervisely-ecosystem/hrda/sly_app_train.png)](https://supervisely.com)
@@ -64,7 +64,7 @@ You can use your trained models outside Supervisely platform without any depende
 
 # Related apps
 
-- [Serve HRDA](../../../../../supervisely-ecosystem/hrda/sly_app_serve) - app allows to deploy YOLOv8 model as REST API service.   
+- [Serve HRDA](https://ecosystem.supervisely.com/apps/hrda/sly_app_serve) - app allows to deploy YOLOv8 model as REST API service.   
     <img data-key="sly-module-link" data-module-slug="supervisely-ecosystem/hrda/sly_app_serve" src="https://github.com/supervisely-ecosystem/hrda/assets/119248312/330f13e9-bc84-45ce-a9a3-d56fafec9c97" height="70px" margin-bottom="20px"/>
   
 - [Export to YOLOv8 format](../../../../supervisely-ecosystem/export-to-yolov8) - app allows to transform data from Supervisely format to YOLOv8 format.   
