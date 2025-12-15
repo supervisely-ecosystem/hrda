@@ -5,6 +5,7 @@ on:
     branches-ignore:
       - main
       - master
+      - "sly-version-update-v-*"
 jobs:
   Supervisely-Release:
     uses: supervisely-ecosystem/workflows/.github/workflows/common.yml@master
@@ -21,3 +22,4 @@ jobs:
       RELEASE_DESCRIPTION: "'${{ github.ref_name }}' branch release"
       RELEASE_TYPE: "release-branch"
       SUBAPP_PATHS: "sly_app_serve, sly_app_train"
+
