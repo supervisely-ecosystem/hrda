@@ -1,2 +1,1 @@
-setuptools==69.5.1
-supervisely==6.73.481
+-r ../dev_requirements.txt
