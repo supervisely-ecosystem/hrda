@@ -25,7 +25,7 @@ matplotlib
 opencv-python
 pandas
 Pillow==8.3.1
-prettytable==2.1.0
+prettytable==3.17.0
 pyparsing==2.4.7
 pytz==2020.1
 PyYAML==6.0.3
