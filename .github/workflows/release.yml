@@ -13,6 +13,7 @@ jobs:
     with:
       config_file: "sly_app_train/config.json"
       dockerfile_template_path: "docker/Dockerfile.tmpl"
+      tag_ref_name: "6.73.567"
       cve_checks: true
 
   Supervisely-Release:
