@@ -19,7 +19,8 @@ cityscapesscripts==2.2.0
 cycler==0.10.0
 gdown
 humanfriendly==9.2
-kiwisolver==1.2.0
+# Python 3.10/manylinux wheels exist for 1.4.7; 1.2.0 falls back to a source build that now breaks on cppy.
+kiwisolver==1.4.7
 kornia==0.5.8
 matplotlib
 opencv-python
