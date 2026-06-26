@@ -24,7 +24,8 @@ kornia==0.5.8
 matplotlib
 opencv-python
 pandas
-Pillow==8.3.1
+# TorchVision 0.22 excludes Pillow 8.3.* and Python 3.10 needs a wheel-backed release.
+Pillow==9.5.0
 prettytable==3.17.0
 pyparsing==2.4.7
 pytz==2020.1
